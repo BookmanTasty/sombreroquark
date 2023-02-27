@@ -1,4 +1,4 @@
-package com.leyvadev;
+package com.leyvadev.sombreroquark.resources;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
