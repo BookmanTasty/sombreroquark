@@ -10,5 +10,6 @@ public interface SombreroUserService {
     // servicio para crear un usuario
     Uni<Response> createUserWithEmailAndPassword(CreateUserDTO user, String redirect);
     Uni<SombreroUser> createUserWithOAuth(CreateUserDTO user);
+    Uni<Response> verifyEmail(String token, String redirect);
 
 }

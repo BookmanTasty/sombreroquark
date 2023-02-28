@@ -37,7 +37,7 @@ public class EmailServiceImpl implements EmailService {
     String sombreroquarkPublicUrl;
     @ConfigProperty(name = "quarkus.http.root-path")
     String quarkusHttpRootPath;
-    String fullUrl = sombreroquarkPublicUrl + quarkusHttpRootPath;
+
 
 
     @Override
@@ -52,7 +52,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendEmailConfirmation(SombreroUser user, String redirect) {
         String template = emailTemplateClient.downloadTemplate(verifyEmailTemplateUrl);
         Map<String, String> values = emailTemplateParser.getVariableValuesFromSombreroUserAsMap(template, user);
-        String verificationLink = fullUrl + "api/users/verify-email?token=" + jwtService.generateEmailConfirmationToken(user) + "&redirect=" + redirect;
+        String verificationLink = sombreroquarkPublicUrl + quarkusHttpRootPath  + "api/users/verify/email?token=" + jwtService.generateEmailConfirmationToken(user) + "&redirect=" + redirect;
         values.put("verificationLink", verificationLink);
         String parsedTemplate = emailTemplateParser.parseTemplate(template, values);
         mailer.send(Mail.withHtml(user.getEmail(), "Verify your email", parsedTemplate));

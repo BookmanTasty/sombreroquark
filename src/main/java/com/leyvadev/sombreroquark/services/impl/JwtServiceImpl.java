@@ -5,14 +5,20 @@ import com.leyvadev.sombreroquark.services.JwtService;
 import com.leyvadev.sombreroquark.utils.JwtUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
+import org.jose4j.jwa.AlgorithmConstraints;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.MalformedClaimException;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.lang.JoseException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
 @ApplicationScoped
 public class JwtServiceImpl implements JwtService {
     private static final Logger LOGGER = Logger.getLogger(JwtServiceImpl.class);
@@ -24,6 +30,7 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String generateEmailConfirmationToken(SombreroUser user) {
         RsaJsonWebKey rsaJsonWebKey = jwtUtils.getRsaJsonWebKey();
+
         JwtClaims claims = new JwtClaims();
         claims.setIssuer(issuer);
         claims.setSubject(user.getEmail());
@@ -44,6 +51,23 @@ public class JwtServiceImpl implements JwtService {
         } catch (JoseException e) {
             LOGGER.error("Error creating token", e);
             return null;
+        }
+    }
+    public String verifyEmailConfirmationToken(String token) {
+        RsaJsonWebKey rsaJsonWebKey = jwtUtils.getRsaJsonWebKey();
+        JwtConsumer jwtConsumer = new JwtConsumerBuilder()
+                .setRequireExpirationTime()
+                .setAllowedClockSkewInSeconds(30)
+                .setRequireSubject()
+                .setExpectedIssuer(issuer)
+                .setVerificationKey(rsaJsonWebKey.getKey())
+                .setJwsAlgorithmConstraints(AlgorithmConstraints.ConstraintType.PERMIT, rsaJsonWebKey.getAlgorithm())
+                .build();
+        try {
+            JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
+            return jwtClaims.getSubject();
+        } catch (InvalidJwtException | MalformedClaimException e) {
+            throw new IllegalArgumentException("Invalid token");
         }
     }
 }

@@ -25,8 +25,7 @@ public class UserResource {
     @GET
     @Path("/verify/email")
     public Uni<Response> verifyEmail(@QueryParam("token") String token, @QueryParam("redirect") String redirect) {
-        //regresamos la concadenacion de token y redirect
-        return Uni.createFrom().item(Response.ok(token + redirect).build());
+        return sombreroUserService.verifyEmail(token, redirect);
     }
 
 }

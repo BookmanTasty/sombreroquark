@@ -7,6 +7,7 @@ import com.leyvadev.sombreroquark.services.EmailService;
 import com.leyvadev.sombreroquark.services.SombreroUserService;
 import com.leyvadev.sombreroquark.utils.PasswordHasher;
 import com.leyvadev.sombreroquark.utils.UserRegistrationValidator;
+import com.leyvadev.sombreroquark.utils.VerifyEmailValidator;
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.Vertx;
@@ -15,6 +16,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
@@ -25,6 +27,8 @@ public class SombreroUserServiceImpl implements SombreroUserService {
     SombreroUserRepository sombreroUserRepository;
     @Inject
     UserRegistrationValidator userRegistrationValidator;
+    @Inject
+    VerifyEmailValidator verifyEmailValidator;
     @Inject
     EmailService emailService;
 
@@ -74,6 +78,18 @@ public class SombreroUserServiceImpl implements SombreroUserService {
                     }
                     return sombreroUserRepository.persist(newUser)
                             .onItem().invoke(this::sendWelcomeEmail);
+                });
+    }
+
+    @Override
+    public Uni<Response> verifyEmail(String token, String redirect) {
+        return verifyEmailValidator.validateVerifyEmailData(token, redirect)
+                .flatMap(user -> {
+                    user.setEmailVerified(true);
+                    return sombreroUserRepository.persist(user).map(persistedUser -> Response.seeOther(URI.create(redirect)).build())
+                            .onItem().invoke(response -> {
+                                sendWelcomeEmail((SombreroUser) response.getEntity());
+                            });
                 });
     }
 
