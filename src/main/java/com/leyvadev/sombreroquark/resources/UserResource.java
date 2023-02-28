@@ -6,10 +6,7 @@ import com.leyvadev.sombreroquark.services.SombreroUserService;
 import io.smallrye.mutiny.Uni;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 @Path("/api/users")
@@ -21,8 +18,15 @@ public class UserResource {
     SombreroUserService sombreroUserService;
 
     @POST
-    public Uni<Response> createUserWithEmailAndPassword(CreateUserDTO user) {
-        return sombreroUserService.createUserWithEmailAndPassword(user);
+    public Uni<Response> createUserWithEmailAndPassword(CreateUserDTO user,@QueryParam("redirect") String redirect) {
+        return sombreroUserService.createUserWithEmailAndPassword(user, redirect);
+    }
+
+    @GET
+    @Path("/verify/email")
+    public Uni<Response> verifyEmail(@QueryParam("token") String token, @QueryParam("redirect") String redirect) {
+        //regresamos la concadenacion de token y redirect
+        return Uni.createFrom().item(Response.ok(token + redirect).build());
     }
 
 }

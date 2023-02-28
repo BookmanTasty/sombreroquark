@@ -95,7 +95,7 @@ public class SombreroUser {
         isActive = active;
     }
 
-    public boolean isEmailVerified(Boolean emailVerified) {
+    public boolean isEmailVerified() {
         return isEmailVerified;
     }
 

@@ -47,10 +47,7 @@ public class OauthServiceImpl implements OauthService {
     JwtUtils jwtUtils;
     @Inject
     SombreroUserService sombreroUserService;
-    @Inject
-    Vertx vertx;
-    @Inject
-    EmailService emailService;
+
     @Override
     public Uni<Response> authorize(String provider, String redirect) {
         StringBuilder url = new StringBuilder();
@@ -123,17 +120,11 @@ public class OauthServiceImpl implements OauthService {
                                         throw new IllegalArgumentException("User cannot be null");
                                     }
                                     return Response.ok().entity(userCreated).build();
-                                }).emitOn(vertx.nettyEventLoopGroup())
-                                .onItem().invoke(this::logWithThread);
+                                });
                         //return Response.seeOther(java.net.URI.create(redirect)).build();
                     });
         }
         throw new IllegalArgumentException("Provider not supported");
-    }
-
-    private void logWithThread(Response item) {
-        SombreroUser user = (SombreroUser) item.getEntity();
-        new Thread(() -> emailService.sendWelcomeEmail(user)).start();
     }
 
 }

@@ -4,7 +4,8 @@ name: CI build
 
 on:
   push:
-    branches: [ main ]
+  tag:
+    - v*
   pull_request:
     branches: [ main ]
 

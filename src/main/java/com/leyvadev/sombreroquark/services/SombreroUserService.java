@@ -8,7 +8,7 @@ import javax.ws.rs.core.Response;
 
 public interface SombreroUserService {
     // servicio para crear un usuario
-    Uni<Response> createUserWithEmailAndPassword(CreateUserDTO user);
+    Uni<Response> createUserWithEmailAndPassword(CreateUserDTO user, String redirect);
     Uni<SombreroUser> createUserWithOAuth(CreateUserDTO user);
 
 }

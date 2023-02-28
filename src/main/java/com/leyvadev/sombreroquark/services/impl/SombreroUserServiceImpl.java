@@ -3,11 +3,13 @@ package com.leyvadev.sombreroquark.services.impl;
 import com.leyvadev.sombreroquark.dto.CreateUserDTO;
 import com.leyvadev.sombreroquark.model.SombreroUser;
 import com.leyvadev.sombreroquark.repositories.SombreroUserRepository;
+import com.leyvadev.sombreroquark.services.EmailService;
 import com.leyvadev.sombreroquark.services.SombreroUserService;
 import com.leyvadev.sombreroquark.utils.PasswordHasher;
 import com.leyvadev.sombreroquark.utils.UserRegistrationValidator;
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.core.Vertx;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -23,12 +25,14 @@ public class SombreroUserServiceImpl implements SombreroUserService {
     SombreroUserRepository sombreroUserRepository;
     @Inject
     UserRegistrationValidator userRegistrationValidator;
+    @Inject
+    EmailService emailService;
 
     @Override
     @Transactional
     @ReactiveTransactional
-    public Uni<Response> createUserWithEmailAndPassword(CreateUserDTO user) {
-        return userRegistrationValidator.validateRegistrationData(user.getUsername(), user.getEmail(), user.getPassword())
+    public Uni<Response> createUserWithEmailAndPassword(CreateUserDTO user, String redirect) {
+        return userRegistrationValidator.validateRegistrationData(user.getUsername(), user.getEmail(), user.getPassword(),redirect)
                 .flatMap(existingUser -> {
                     if (existingUser != null) {
                         throw new IllegalArgumentException("User already exists");
@@ -42,7 +46,10 @@ public class SombreroUserServiceImpl implements SombreroUserService {
                         throw new IllegalArgumentException("Password is not valid");
                     }
                     newUser.setData(user.getData());
-                    return sombreroUserRepository.persist(newUser).map(persistedUser -> Response.ok(persistedUser).build());
+                    return sombreroUserRepository.persist(newUser).map(persistedUser -> Response.ok(persistedUser).build())
+                            .onItem().invoke(response -> {
+                                sendEmailConfirmation((SombreroUser) response.getEntity(), redirect);
+                            });
                 });
     }
 
@@ -65,7 +72,20 @@ public class SombreroUserServiceImpl implements SombreroUserService {
                     if (existingUser != null) {
                         return Uni.createFrom().item(existingUser);
                     }
-                    return sombreroUserRepository.persist(newUser);
+                    return sombreroUserRepository.persist(newUser)
+                            .onItem().invoke(this::sendWelcomeEmail);
                 });
+    }
+
+    private void sendWelcomeEmail(SombreroUser user) {
+        new Thread(() -> {
+            emailService.sendWelcomeEmail(user);
+        }).start();
+    }
+
+    private void sendEmailConfirmation(SombreroUser user, String redirect) {
+        new Thread(() -> {
+            emailService.sendEmailConfirmation(user, redirect);
+        }).start();
     }
 }

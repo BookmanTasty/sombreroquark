@@ -50,7 +50,7 @@ public class JwtUtils {
         }
     }
 
-    public RsaJsonWebKey rsaJsonWebKeyPublic() {
+    public RsaJsonWebKey getRsaJsonWebKey() {
         String privateKey = new String(java.util.Base64.getDecoder().decode(privateKeyBase64));
         try {
             return (RsaJsonWebKey) PublicJsonWebKey.Factory.newPublicJwk(privateKey);
