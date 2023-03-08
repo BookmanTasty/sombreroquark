@@ -33,4 +33,16 @@ public class VerifyEmailValidator {
                     return userRepository.findByEmail(email);
                 });
     }
+
+    public Uni<SombreroUser> validateRefresTokenEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be null or empty");
+        }
+        return userRepository.findByEmail(email).map(user -> {
+            if(user == null) {
+                throw new IllegalArgumentException("User not found");
+            }
+            return user;
+        });
+    }
 }

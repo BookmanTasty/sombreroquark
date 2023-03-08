@@ -23,6 +23,11 @@ import javax.inject.Inject;
 public class JwtServiceImpl implements JwtService {
     private static final Logger LOGGER = Logger.getLogger(JwtServiceImpl.class);
 
+    private static final String EMAIL_AUDIENCE = "email";
+    private static final String ACCESS_AUDIENCE = "access";
+    private static final String REFRESH_AUDIENCE = "refresh";
+    private static final String RESET_AUDIENCE = "reset";
+    private static final String ERROR_CREATING_TOKEN = "Error creating token";
     @Inject
     JwtUtils jwtUtils;
     @ConfigProperty(name = "smallrye.jwt.issuer")
@@ -33,6 +38,7 @@ public class JwtServiceImpl implements JwtService {
 
         JwtClaims claims = new JwtClaims();
         claims.setIssuer(issuer);
+        claims.setAudience(EMAIL_AUDIENCE);
         claims.setSubject(user.getEmail());
         claims.setClaim("userId", user.getId());
         claims.setClaim("email", user.getEmail());
@@ -49,7 +55,7 @@ public class JwtServiceImpl implements JwtService {
         try {
             return jws.getCompactSerialization();
         } catch (JoseException e) {
-            LOGGER.error("Error creating token", e);
+            LOGGER.error(ERROR_CREATING_TOKEN, e);
             return null;
         }
     }
@@ -59,6 +65,7 @@ public class JwtServiceImpl implements JwtService {
                 .setRequireExpirationTime()
                 .setAllowedClockSkewInSeconds(30)
                 .setRequireSubject()
+                .setExpectedAudience(EMAIL_AUDIENCE)
                 .setExpectedIssuer(issuer)
                 .setVerificationKey(rsaJsonWebKey.getKey())
                 .setJwsAlgorithmConstraints(AlgorithmConstraints.ConstraintType.PERMIT, rsaJsonWebKey.getAlgorithm())
@@ -67,7 +74,110 @@ public class JwtServiceImpl implements JwtService {
             JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
             return jwtClaims.getSubject();
         } catch (InvalidJwtException | MalformedClaimException e) {
+            LOGGER.error("Invalid token", e);
             throw new IllegalArgumentException("Invalid token");
+        }
+    }
+
+    @Override
+    public String verifyRefreshToken(String token) {
+        RsaJsonWebKey rsaJsonWebKey = jwtUtils.getRsaJsonWebKey();
+        JwtConsumer jwtConsumer = new JwtConsumerBuilder()
+                .setRequireExpirationTime()
+                .setAllowedClockSkewInSeconds(30)
+                .setRequireSubject()
+                .setExpectedAudience(REFRESH_AUDIENCE)
+                .setExpectedIssuer(issuer)
+                .setVerificationKey(rsaJsonWebKey.getKey())
+                .setJwsAlgorithmConstraints(AlgorithmConstraints.ConstraintType.PERMIT, rsaJsonWebKey.getAlgorithm())
+                .build();
+        try {
+            JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
+            return jwtClaims.getSubject();
+        } catch (InvalidJwtException | MalformedClaimException e) {
+            LOGGER.error("Invalid token", e);
+            throw new IllegalArgumentException("Invalid token");
+        }
+    }
+
+    @Override
+    public String generateAccessToken(SombreroUser user) {
+        RsaJsonWebKey rsaJsonWebKey = jwtUtils.getRsaJsonWebKey();
+        JwtClaims claims = new JwtClaims();
+        claims.setIssuer(issuer);
+        claims.setAudience(ACCESS_AUDIENCE);
+        claims.setSubject(user.getEmail());
+        claims.setClaim("userId", user.getId());
+        claims.setClaim("email", user.getEmail());
+        claims.setClaim("groups", user.getGroupsAsList());
+        claims.setGeneratedJwtId();
+        claims.setIssuedAtToNow();
+        claims.setExpirationTimeMinutesInTheFuture(15);
+
+        JsonWebSignature jws = new JsonWebSignature();
+        jws.setPayload(claims.toJson());
+        jws.setKey(rsaJsonWebKey.getPrivateKey());
+        jws.setKeyIdHeaderValue(rsaJsonWebKey.getKeyId());
+        jws.setAlgorithmHeaderValue(rsaJsonWebKey.getAlgorithm());
+
+        try {
+            return jws.getCompactSerialization();
+        } catch (JoseException e) {
+            LOGGER.error(ERROR_CREATING_TOKEN, e);
+            throw new IllegalArgumentException(ERROR_CREATING_TOKEN);
+        }
+    }
+
+    @Override
+    public String generateRefreshToken(SombreroUser user) {
+        RsaJsonWebKey rsaJsonWebKey = jwtUtils.getRsaJsonWebKey();
+        JwtClaims claims = new JwtClaims();
+        claims.setIssuer(issuer);
+        claims.setAudience(REFRESH_AUDIENCE);
+        claims.setSubject(user.getEmail());
+        claims.setGeneratedJwtId();
+        claims.setIssuedAtToNow();
+        claims.setExpirationTimeMinutesInTheFuture(60 * 24 * 7);
+
+        JsonWebSignature jws = new JsonWebSignature();
+        jws.setPayload(claims.toJson());
+        jws.setKey(rsaJsonWebKey.getPrivateKey());
+        jws.setKeyIdHeaderValue(rsaJsonWebKey.getKeyId());
+        jws.setAlgorithmHeaderValue(rsaJsonWebKey.getAlgorithm());
+
+        try {
+            return jws.getCompactSerialization();
+        } catch (JoseException e) {
+            LOGGER.error(ERROR_CREATING_TOKEN, e);
+            throw new IllegalArgumentException(ERROR_CREATING_TOKEN);
+        }
+    }
+
+    @Override
+    public String generatePasswordResetToken(SombreroUser user) {
+        RsaJsonWebKey rsaJsonWebKey = jwtUtils.getRsaJsonWebKey();
+
+        JwtClaims claims = new JwtClaims();
+        claims.setIssuer(issuer);
+        claims.setAudience(EMAIL_AUDIENCE);
+        claims.setSubject(user.getEmail());
+        claims.setClaim("userId", user.getId());
+        claims.setClaim("email", user.getEmail());
+        claims.setGeneratedJwtId();
+        claims.setIssuedAtToNow();
+        claims.setExpirationTimeMinutesInTheFuture(60);
+
+        JsonWebSignature jws = new JsonWebSignature();
+        jws.setPayload(claims.toJson());
+        jws.setKey(rsaJsonWebKey.getPrivateKey());
+        jws.setKeyIdHeaderValue(rsaJsonWebKey.getKeyId());
+        jws.setAlgorithmHeaderValue(rsaJsonWebKey.getAlgorithm());
+
+        try {
+            return jws.getCompactSerialization();
+        } catch (JoseException e) {
+            LOGGER.error(ERROR_CREATING_TOKEN, e);
+            throw new IllegalArgumentException(ERROR_CREATING_TOKEN);
         }
     }
 }

@@ -88,7 +88,7 @@ public class SombreroUserServiceImpl implements SombreroUserService {
                     user.setEmailVerified(true);
                     return sombreroUserRepository.persist(user).map(persistedUser -> Response.seeOther(URI.create(redirect)).build())
                             .onItem().invoke(response -> {
-                                sendWelcomeEmail((SombreroUser) response.getEntity());
+                                sendWelcomeEmail(user);
                             });
                 });
     }

@@ -4,6 +4,7 @@ package com.leyvadev.sombreroquark.services.impl;
 import com.leyvadev.sombreroquark.clients.GoogleOAuthClient;
 import com.leyvadev.sombreroquark.dto.CreateUserDTO;
 import com.leyvadev.sombreroquark.model.SombreroUser;
+import com.leyvadev.sombreroquark.services.AuthService;
 import com.leyvadev.sombreroquark.services.EmailService;
 import com.leyvadev.sombreroquark.services.OauthService;
 import com.leyvadev.sombreroquark.services.SombreroUserService;
@@ -47,6 +48,8 @@ public class OauthServiceImpl implements OauthService {
     JwtUtils jwtUtils;
     @Inject
     SombreroUserService sombreroUserService;
+    @Inject
+    AuthService authService;
 
     @Override
     public Uni<Response> authorize(String provider, String redirect) {
@@ -115,13 +118,12 @@ public class OauthServiceImpl implements OauthService {
                         user.setData(data);
                         user.setEmailVerified((Boolean) claims.get("email_verified"));
                         return sombreroUserService.createUserWithOAuth(user)
-                                .map(userCreated -> {
+                                .flatMap(userCreated -> {
                                     if (userCreated == null) {
                                         throw new IllegalArgumentException("User cannot be null");
                                     }
-                                    return Response.ok().entity(userCreated).build();
+                                    return authService.loginOAuth(userCreated, redirect);
                                 });
-                        //return Response.seeOther(java.net.URI.create(redirect)).build();
                     });
         }
         throw new IllegalArgumentException("Provider not supported");

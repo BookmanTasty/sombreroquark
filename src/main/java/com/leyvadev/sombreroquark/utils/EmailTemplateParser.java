@@ -37,7 +37,11 @@ public class EmailTemplateParser {
         for (String variable : variables) {
             if (variable.contains(".")) {
                 String[] split = variable.split("\\.");
-                values.put(variable, user.getData().getMap().get(split[1]).toString());
+                try {
+                    values.put(variable, user.getDataAsMap().get(split[1]).toString());
+                } catch (NullPointerException e) {
+                    values.put(variable, "");
+                }
             } else {
                 if (variable.equals("username")) {
                     values.put(variable, user.getUsername());

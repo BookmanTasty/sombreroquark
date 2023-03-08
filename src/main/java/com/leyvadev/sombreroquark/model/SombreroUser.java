@@ -5,11 +5,16 @@ import io.vertx.core.json.JsonObject;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "sombrero_user")
+@NamedEntityGraph(
+        name = "userWithGroups",
+        attributeNodes = {
+                @NamedAttributeNode("groups")
+        }
+)
 public class SombreroUser {
 
     @Id
@@ -30,6 +35,22 @@ public class SombreroUser {
     private boolean isActive = true;
     @Column(name = "is_email_verified", nullable = false)
     private boolean isEmailVerified = false;
+    @ManyToMany
+    @JoinTable(
+            name = "sombrero_user_group",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    @JsonIgnore
+    private Set<SombreroGroup> groups = new HashSet<>();
+
+    public Set<SombreroGroup> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<SombreroGroup> groups) {
+        this.groups = groups;
+    }
 
     public JsonObject getData() {
         return data;
@@ -42,7 +63,7 @@ public class SombreroUser {
     public void setData(Map<String, Object> data) {
         this.data = JsonObject.mapFrom(data);
     }
-
+    @JsonIgnore
     public Map<String, Object> getDataAsMap() {
         return data.getMap();
     }
@@ -101,5 +122,12 @@ public class SombreroUser {
 
     public void setEmailVerified(boolean emailVerified) {
         isEmailVerified = emailVerified;
+    }
+    public List<String> getGroupsAsList() {
+        List<String> groupNames = new ArrayList<>();
+        for (SombreroGroup group : groups) {
+            groupNames.add(group.getName());
+        }
+        return groupNames;
     }
 }

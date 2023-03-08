@@ -16,7 +16,20 @@ public class SombreroUserRepository implements PanacheRepositoryBase<SombreroUse
     Mutiny.SessionFactory sessionFactory;
 
     public Uni<SombreroUser> findByEmail(String email) {
-        return find("email", email).firstResult();
+        return sessionFactory.withSession(session ->
+                session.createQuery("SELECT u FROM SombreroUser u LEFT JOIN FETCH u.groups WHERE u.email = :email", SombreroUser.class)
+                        .setParameter("email", email)
+                        .getResultList()
+                        .onItem()
+                        .ifNotNull()
+                        .transformToUni(list -> {
+                            if (list.size() > 0) {
+                                return Uni.createFrom().item(list.get(0));
+                            } else {
+                                return Uni.createFrom().nullItem();
+                            }
+                        })
+        );
     }
 
     public Uni<SombreroUser> persist(SombreroUser user) {
