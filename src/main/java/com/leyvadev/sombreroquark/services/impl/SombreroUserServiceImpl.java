@@ -10,7 +10,6 @@ import com.leyvadev.sombreroquark.utils.UserRegistrationValidator;
 import com.leyvadev.sombreroquark.utils.VerifyEmailValidator;
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.core.Vertx;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -50,7 +49,7 @@ public class SombreroUserServiceImpl implements SombreroUserService {
                         throw new IllegalArgumentException("Password is not valid");
                     }
                     newUser.setData(user.getData());
-                    return sombreroUserRepository.persist(newUser).map(persistedUser -> Response.ok(persistedUser).build())
+                    return sombreroUserRepository.save(newUser).map(persistedUser -> Response.ok(persistedUser).build())
                             .onItem().invoke(response -> {
                                 sendEmailConfirmation((SombreroUser) response.getEntity(), redirect);
                             });
@@ -76,7 +75,7 @@ public class SombreroUserServiceImpl implements SombreroUserService {
                     if (existingUser != null) {
                         return Uni.createFrom().item(existingUser);
                     }
-                    return sombreroUserRepository.persist(newUser)
+                    return sombreroUserRepository.save(newUser)
                             .onItem().invoke(this::sendWelcomeEmail);
                 });
     }
@@ -86,7 +85,7 @@ public class SombreroUserServiceImpl implements SombreroUserService {
         return verifyEmailValidator.validateVerifyEmailData(token, redirect)
                 .flatMap(user -> {
                     user.setEmailVerified(true);
-                    return sombreroUserRepository.persist(user).map(persistedUser -> Response.seeOther(URI.create(redirect)).build())
+                    return sombreroUserRepository.save(user).map(persistedUser -> Response.seeOther(URI.create(redirect)).build())
                             .onItem().invoke(response -> {
                                 sendWelcomeEmail(user);
                             });
@@ -104,4 +103,6 @@ public class SombreroUserServiceImpl implements SombreroUserService {
             emailService.sendEmailConfirmation(user, redirect);
         }).start();
     }
+
+
 }

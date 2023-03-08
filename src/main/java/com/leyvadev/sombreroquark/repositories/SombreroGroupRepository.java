@@ -1,6 +1,6 @@
 package com.leyvadev.sombreroquark.repositories;
 
-import com.leyvadev.sombreroquark.model.SombreroUser;
+import com.leyvadev.sombreroquark.model.SombreroGroup;
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
 import io.smallrye.mutiny.Uni;
 import org.hibernate.reactive.mutiny.Mutiny;
@@ -8,17 +8,15 @@ import org.hibernate.reactive.mutiny.Mutiny;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.UUID;
-
 @ApplicationScoped
-public class SombreroUserRepository implements PanacheRepositoryBase<SombreroUser, UUID> {
+public class SombreroGroupRepository implements PanacheRepositoryBase<SombreroGroup, UUID> {
 
     @Inject
     Mutiny.SessionFactory sessionFactory;
-
-    public Uni<SombreroUser> findByEmail(String email) {
+    public Uni<SombreroGroup> findByName(String name) {
         return sessionFactory.withSession(session ->
-                session.createQuery("SELECT u FROM SombreroUser u LEFT JOIN FETCH u.groups WHERE u.email = :email", SombreroUser.class)
-                        .setParameter("email", email)
+                session.createQuery("SELECT g FROM SombreroGroup g WHERE g.name = :name", SombreroGroup.class)
+                        .setParameter("name", name)
                         .getResultList()
                         .onItem()
                         .ifNotNull()
@@ -32,9 +30,7 @@ public class SombreroUserRepository implements PanacheRepositoryBase<SombreroUse
         );
     }
 
-    public Uni<SombreroUser> save(SombreroUser user) {
-        return sessionFactory.withTransaction((session, tx) -> session.merge(user));
+    public Uni<SombreroGroup> save(SombreroGroup group) {
+        return sessionFactory.withTransaction((session, tx) -> session.merge(group));
     }
-
-
 }

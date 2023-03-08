@@ -6,7 +6,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "sombrero_allowed_redirect_urls")
-public class SombreroAllowedRedirectUrls {
+public class SombreroAllowedRedirectUrl {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;

@@ -27,15 +27,15 @@ import java.util.Map;
 public class OauthServiceImpl implements OauthService {
 
     private static final Logger LOGGER = Logger.getLogger(OauthServiceImpl.class);
-    @ConfigProperty(name = "quarkus.oauth.google.url")
+    @ConfigProperty(name = "sombreroquark.oauth.google.url")
     String googleUrl;
-    @ConfigProperty(name = "quarkus.oauth.google.client-id")
+    @ConfigProperty(name = "sombreroquark.oauth.google.client-id")
     String googleClientId;
-    @ConfigProperty(name = "quarkus.oauth.google.scope")
+    @ConfigProperty(name = "sombreroquark.oauth.google.scope")
     String googleScope;
-    @ConfigProperty(name = "quarkus.oauth.google.redirect-uri")
+    @ConfigProperty(name = "sombreroquark.oauth.google.redirect-uri")
     String googleRedirectUri;
-    @ConfigProperty(name = "quarkus.oauth.google.client-secret")
+    @ConfigProperty(name = "sombreroquark.oauth.google.client-secret")
     String googleClientSecret;
     private static final String RESPONSE_TYPE = "?response_type=code";
 

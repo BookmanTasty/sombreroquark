@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "sombrero_groups")
+@Table(name = "sombrero_group")
 public class SombreroGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -18,13 +18,6 @@ public class SombreroGroup {
     @ManyToMany(mappedBy = "groups")
     private Set<SombreroUser> users = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "sombrero_group_permission",
-            joinColumns = @JoinColumn(name = "group_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id")
-    )
-    private Set<SombreroPermission> permissions = new HashSet<>();
 
     @Column(name = "data", nullable = false)
     private String data;
@@ -62,14 +55,6 @@ public class SombreroGroup {
 
     public void setUsers(Set<SombreroUser> users) {
         this.users = users;
-    }
-
-    public Set<SombreroPermission> getPermissions() {
-        return permissions;
-    }
-
-    public void setPermissions(Set<SombreroPermission> permissions) {
-        this.permissions = permissions;
     }
 
     public String getData() {
