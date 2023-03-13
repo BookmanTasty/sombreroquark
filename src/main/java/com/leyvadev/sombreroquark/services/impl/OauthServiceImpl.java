@@ -3,16 +3,13 @@ package com.leyvadev.sombreroquark.services.impl;
 
 import com.leyvadev.sombreroquark.clients.GoogleOAuthClient;
 import com.leyvadev.sombreroquark.dto.CreateUserDTO;
-import com.leyvadev.sombreroquark.model.SombreroUser;
 import com.leyvadev.sombreroquark.services.AuthService;
-import com.leyvadev.sombreroquark.services.EmailService;
 import com.leyvadev.sombreroquark.services.OauthService;
 import com.leyvadev.sombreroquark.services.SombreroUserService;
 import com.leyvadev.sombreroquark.utils.JwtUtils;
 import com.leyvadev.sombreroquark.utils.RedirectUrlValidator;
 import io.smallrye.mutiny.Uni;
 
-import io.vertx.mutiny.core.Vertx;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
@@ -22,7 +19,6 @@ import org.jose4j.jwk.RsaJsonWebKey;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.json.Json;
 import javax.ws.rs.core.Response;
 import java.util.Map;
 

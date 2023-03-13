@@ -11,11 +11,9 @@ public class SombreroBlacklistToken {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "token", unique = true, nullable = false)
+    @Column(name = "token", columnDefinition = "TEXT", unique = true, nullable = false)
     private String token;
 
-    @Column(name = "expires_at", nullable = false)
-    private Instant expiresAt;
 
     public UUID getId() {
         return id;
@@ -33,11 +31,4 @@ public class SombreroBlacklistToken {
         this.token = token;
     }
 
-    public Instant getExpiresAt() {
-        return expiresAt;
-    }
-
-    public void setExpiresAt(Instant expiresAt) {
-        this.expiresAt = expiresAt;
-    }
 }

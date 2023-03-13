@@ -1,7 +1,10 @@
 package com.leyvadev.sombreroquark.utils;
 
+import com.leyvadev.sombreroquark.exceptionmappers.IllegalArgumentExceptionWithTemplate;
+import com.leyvadev.sombreroquark.model.SombreroBlacklistToken;
 import com.leyvadev.sombreroquark.model.SombreroUser;
 import com.leyvadev.sombreroquark.repositories.SombreroAllowedRedirectUrlsRepository;
+import com.leyvadev.sombreroquark.repositories.SombreroBlacklistTokenRepository;
 import com.leyvadev.sombreroquark.repositories.SombreroUserRepository;
 import com.leyvadev.sombreroquark.services.JwtService;
 import io.smallrye.mutiny.Uni;
@@ -15,22 +18,35 @@ public class VerifyEmailValidator {
     @Inject
     SombreroAllowedRedirectUrlsRepository redirectUrlsRepository;
     @Inject
+    SombreroBlacklistTokenRepository blacklistTokenRepository;
+    @Inject
     JwtService jwtService;
 
     public Uni<SombreroUser> validateVerifyEmailData(String token, String redirect) {
         if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("Token cannot be null or empty");
+            throw new IllegalArgumentExceptionWithTemplate("Token cannot be null or empty",null);
         }
         if (redirect == null || redirect.isEmpty()) {
-            throw new IllegalArgumentException("Redirect cannot be null or empty");
+            throw new IllegalArgumentExceptionWithTemplate("Redirect cannot be null or empty",null);
         }
         return redirectUrlsRepository.existsByUrlAndIsActive(redirect)
                 .flatMap(url -> {
                     if(url == null) {
-                        throw new IllegalArgumentException("Redirect URL not allowed");
+                        throw new IllegalArgumentExceptionWithTemplate("Redirect URL not allowed",null);
                     }
                     String email = jwtService.verifyEmailConfirmationToken(token);
-                    return userRepository.findByEmail(email);
+                    return userRepository.findByEmail(email).flatMap(user -> {
+                        if(user == null) {
+                            throw new IllegalArgumentExceptionWithTemplate("User not found");
+                        }
+                        return blacklistTokenRepository.findByToken(token).flatMap(blacklistToken -> {
+                            if(blacklistToken != null) {
+                                throw new IllegalArgumentExceptionWithTemplate("Link already used", null);                            }
+                            SombreroBlacklistToken blacklistTokenToSave = new SombreroBlacklistToken();
+                            blacklistTokenToSave.setToken(token);
+                            return blacklistTokenRepository.save(blacklistTokenToSave).replaceWith(user);
+                        });
+                    });
                 });
     }
 

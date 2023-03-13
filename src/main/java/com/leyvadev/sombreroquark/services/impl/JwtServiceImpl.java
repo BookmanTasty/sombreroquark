@@ -1,5 +1,6 @@
 package com.leyvadev.sombreroquark.services.impl;
 
+import com.leyvadev.sombreroquark.exceptionmappers.IllegalArgumentExceptionWithTemplate;
 import com.leyvadev.sombreroquark.model.SombreroUser;
 import com.leyvadev.sombreroquark.services.JwtService;
 import com.leyvadev.sombreroquark.utils.JwtUtils;
@@ -73,9 +74,12 @@ public class JwtServiceImpl implements JwtService {
         try {
             JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
             return jwtClaims.getSubject();
-        } catch (InvalidJwtException | MalformedClaimException e) {
+        } catch ( MalformedClaimException e) {
             LOGGER.error("Invalid token", e);
-            throw new IllegalArgumentException("Invalid token");
+            throw new IllegalArgumentExceptionWithTemplate("Invalid link",null);
+        } catch (InvalidJwtException e) {
+            LOGGER.error("Invalid token", e);
+            throw new  IllegalArgumentExceptionWithTemplate("Expired link",null);
         }
     }
 

@@ -1,9 +1,7 @@
 package com.leyvadev.sombreroquark.clients;
 
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -23,6 +21,7 @@ public class EmailTemplateClient {
                             HttpResponse.BodyHandlers.ofString())
                     .body();
         }catch (IOException | InterruptedException e) {
+            Thread.currentThread().interrupt();
             return "Error downloading template";
         }
     }

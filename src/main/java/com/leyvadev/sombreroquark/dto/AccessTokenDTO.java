@@ -1,11 +1,11 @@
 package com.leyvadev.sombreroquark.dto;
 
-public class AccessToken {
+public class AccessTokenDTO {
     private String accessToken;
     private String tokenType;
 
 
-    public AccessToken(String accessToken, String tokenType) {
+    public AccessTokenDTO(String accessToken, String tokenType) {
         this.accessToken = accessToken;
         this.tokenType = tokenType;
     }

@@ -7,14 +7,10 @@ import com.leyvadev.sombreroquark.services.JwtService;
 import com.leyvadev.sombreroquark.utils.EmailTemplateParser;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
-import io.quarkus.qute.Template;
-import io.smallrye.jwt.build.Jwt;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.Path;
-import javax.xml.transform.Templates;
 import java.util.Map;
 
 @ApplicationScoped
