@@ -3,7 +3,9 @@ package com.leyvadev.sombreroquark.services.impl;
 import com.leyvadev.sombreroquark.dto.AccessTokenDTO;
 import com.leyvadev.sombreroquark.dto.CredentialsDTO;
 import com.leyvadev.sombreroquark.dto.DefaultResponseDTO;
+import com.leyvadev.sombreroquark.model.SombreroBlacklistToken;
 import com.leyvadev.sombreroquark.model.SombreroUser;
+import com.leyvadev.sombreroquark.repositories.SombreroBlacklistTokenRepository;
 import com.leyvadev.sombreroquark.services.AuthService;
 import com.leyvadev.sombreroquark.services.EmailService;
 import com.leyvadev.sombreroquark.services.JwtService;
@@ -33,6 +35,8 @@ public class AuthServiceImpl implements AuthService {
     JwtService jwtService;
     @Inject
     EmailService emailService;
+    @Inject
+    SombreroBlacklistTokenRepository blacklistTokenRepository;
 
     @Override
     public Uni<Response> login(CredentialsDTO credentials) {
@@ -90,7 +94,15 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Uni<Response> logout(HttpHeaders headers) {
-        return null;
+        String refreshToken = headers.getHeaderString(REFRESHTOKEN);
+        SombreroBlacklistToken blacklistToken = new SombreroBlacklistToken();
+        blacklistToken.setToken(refreshToken);
+        DefaultResponseDTO response = new DefaultResponseDTO("Logout successful", "200");
+        return blacklistTokenRepository.persist(blacklistToken)
+                .onItem().transform(token -> {
+                    NewCookie newCookie = new NewCookie(REFRESHTOKEN, "");
+                    return Response.ok().cookie(newCookie).entity(response).build();
+                });
     }
 
     private void sendEmailmagicLink(SombreroUser user, String redirect){

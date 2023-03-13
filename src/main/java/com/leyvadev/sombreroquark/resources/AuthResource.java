@@ -4,12 +4,8 @@ import com.leyvadev.sombreroquark.dto.CredentialsDTO;
 
 import com.leyvadev.sombreroquark.interceptor.RefreshTokenFilter;
 import com.leyvadev.sombreroquark.services.AuthService;
-import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.Uni;
-import org.eclipse.microprofile.jwt.JsonWebToken;;
 
-
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -21,9 +17,6 @@ import javax.ws.rs.core.*;
 public class AuthResource {
     @Inject
     AuthService authService;
-    @Inject
-    JsonWebToken jwt;
-
 
     @POST
     @Path("/login")
@@ -53,7 +46,7 @@ public class AuthResource {
     @POST
     @Path("/logout")
     public Uni<Response> logout(@Context HttpHeaders headers) {
-        return Uni.createFrom().item(Response.ok().build());
+        return authService.logout(headers);
     }
 
 }
