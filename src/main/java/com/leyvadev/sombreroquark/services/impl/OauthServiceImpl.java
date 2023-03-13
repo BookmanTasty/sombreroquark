@@ -16,10 +16,13 @@ import io.vertx.mutiny.core.Vertx;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
+import org.jose4j.jwk.JsonWebKey;
+import org.jose4j.jwk.RsaJsonWebKey;
 
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.Json;
 import javax.ws.rs.core.Response;
 import java.util.Map;
 
@@ -50,6 +53,7 @@ public class OauthServiceImpl implements OauthService {
     SombreroUserService sombreroUserService;
     @Inject
     AuthService authService;
+
 
     @Override
     public Uni<Response> authorize(String provider, String redirect) {
@@ -128,5 +132,15 @@ public class OauthServiceImpl implements OauthService {
         }
         throw new IllegalArgumentException("Provider not supported");
     }
+
+    @Override
+    public Uni<Response> certs() {
+        RsaJsonWebKey rsaJsonWebKey = jwtUtils.getRsaJsonWebKey();
+        String jwk = rsaJsonWebKey.toJson(JsonWebKey.OutputControlLevel.PUBLIC_ONLY);
+        jwk = "{\"keys\":[" + jwk + "]}";
+        Response.ResponseBuilder response = Response.ok(jwk);
+        return Uni.createFrom().item(response.build());
+    }
+
 
 }

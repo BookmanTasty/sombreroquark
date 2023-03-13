@@ -54,6 +54,9 @@ public class StartupService {
     @Inject
     @ConfigProperty(name = "quarkus.http.root-path")
     String rootPath;
+    @Inject
+    @ConfigProperty(name = "sombreroquark.admin.group")
+    String adminGroup;
 
     void onStart(@Observes StartupEvent ev) {
 
@@ -84,7 +87,7 @@ public class StartupService {
 
     private Uni<SombreroGroup> createDefaultGroup() {
         SombreroGroup group = new SombreroGroup();
-        group.setName("SombreroAdmin");
+        group.setName(adminGroup);
         group.setPermissionRequired(true);
         group.setData("SombreroAdmin default group");
         return groupRepository.save(group);

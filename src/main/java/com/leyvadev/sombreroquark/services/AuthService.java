@@ -12,4 +12,6 @@ public interface AuthService {
     Uni<Response> renewToken(HttpHeaders headers);
     Uni<Response> logout(HttpHeaders headers);
     Uni<Response> loginOAuth(SombreroUser user, String redirect);
+    Uni<Response> loginMagicLink(CredentialsDTO credentials, String redirect);
+    Uni<Response> verifyMagicLink(String token, String redirect);
 }

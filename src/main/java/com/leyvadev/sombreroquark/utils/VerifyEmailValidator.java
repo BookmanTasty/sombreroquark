@@ -45,4 +45,19 @@ public class VerifyEmailValidator {
             return user;
         });
     }
+    public Uni<SombreroUser> validateMagicLinkEmailAndRedirect(String email, String redirect) {
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be null or empty");
+        }
+        if (redirect == null || redirect.isEmpty()) {
+            throw new IllegalArgumentException("Redirect cannot be null or empty");
+        }
+        return redirectUrlsRepository.existsByUrlAndIsActive(redirect)
+                .flatMap(url -> {
+                    if(url == null) {
+                        throw new IllegalArgumentException("Redirect URL not allowed");
+                    }
+                    return userRepository.findByEmail(email);
+                });
+    }
 }

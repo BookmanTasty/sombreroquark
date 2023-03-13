@@ -1,8 +1,6 @@
 package com.leyvadev.sombreroquark.resources;
 
 import com.leyvadev.sombreroquark.services.OauthService;
-import io.quarkus.oidc.common.runtime.OidcCommonConfig;
-import io.quarkus.oidc.runtime.OidcProviderClient;
 import io.smallrye.mutiny.Uni;
 
 import javax.inject.Inject;
@@ -33,5 +31,13 @@ public class OAuthResource {
                                   @QueryParam("state") String state)
     {
         return oauthService.callback(code, state);
+    }
+
+    @GET
+        @Path("/certs")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> certs(@QueryParam("provider") String provider)
+    {
+        return oauthService.certs();
     }
 }

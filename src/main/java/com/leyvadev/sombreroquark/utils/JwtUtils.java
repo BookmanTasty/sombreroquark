@@ -59,4 +59,5 @@ public class JwtUtils {
         }
         throw new IllegalArgumentException("Error retrieving JWT_JWKS_KEY");
     }
+
 }

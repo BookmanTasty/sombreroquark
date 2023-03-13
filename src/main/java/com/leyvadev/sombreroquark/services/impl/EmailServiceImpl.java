@@ -32,6 +32,8 @@ public class EmailServiceImpl implements EmailService {
     String welcomeTemplateUrl;
     @ConfigProperty(name = "remote.template.verify-email.url")
     String verifyEmailTemplateUrl;
+    @ConfigProperty(name = "remote.template.magic-link.url")
+    String magicLinkTemplateUrl;
 
     @ConfigProperty(name = "sombreroquark.public.url")
     String sombreroquarkPublicUrl;
@@ -56,5 +58,15 @@ public class EmailServiceImpl implements EmailService {
         values.put("verificationLink", verificationLink);
         String parsedTemplate = emailTemplateParser.parseTemplate(template, values);
         mailer.send(Mail.withHtml(user.getEmail(), "Verify your email", parsedTemplate));
+    }
+
+    @Override
+    public void sendEmailMagicLink(SombreroUser user, String redirect) {
+        String template = emailTemplateClient.downloadTemplate(magicLinkTemplateUrl);
+        Map<String, String> values = emailTemplateParser.getVariableValuesFromSombreroUserAsMap(template, user);
+        String magicLink = sombreroquarkPublicUrl + quarkusHttpRootPath  + "api/auth/login/magic?token=" + jwtService.generateEmailConfirmationToken(user) + "&redirect=" + redirect;
+        values.put("magicLink", magicLink);
+        String parsedTemplate = emailTemplateParser.parseTemplate(template, values);
+        mailer.send(Mail.withHtml(user.getEmail(), "Login with magic link", parsedTemplate));
     }
 }
