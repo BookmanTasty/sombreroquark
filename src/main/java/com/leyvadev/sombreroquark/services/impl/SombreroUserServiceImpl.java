@@ -1,6 +1,7 @@
 package com.leyvadev.sombreroquark.services.impl;
 
 import com.leyvadev.sombreroquark.dto.CreateUserDTO;
+import com.leyvadev.sombreroquark.dto.PaginatedRequestDTO;
 import com.leyvadev.sombreroquark.model.SombreroUser;
 import com.leyvadev.sombreroquark.repositories.SombreroUserRepository;
 import com.leyvadev.sombreroquark.services.EmailService;
@@ -90,6 +91,12 @@ public class SombreroUserServiceImpl implements SombreroUserService {
                                 sendWelcomeEmail(user);
                             });
                 });
+    }
+
+    @Override
+    public Uni<Response> getPaginatedUsers(PaginatedRequestDTO paginatedRequestDTO) {
+        return sombreroUserRepository.getPaginatedUsers(paginatedRequestDTO)
+                .map(users -> Response.ok(users).build());
     }
 
     private void sendWelcomeEmail(SombreroUser user) {

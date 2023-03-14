@@ -3,17 +3,17 @@ package com.leyvadev.sombreroquark.repositories;
 import com.leyvadev.sombreroquark.model.SombreroGroup;
 import com.leyvadev.sombreroquark.model.SombreroUser;
 import com.leyvadev.sombreroquark.model.SombreroUserGroup;
-import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
+
 import io.smallrye.mutiny.Uni;
 import org.hibernate.reactive.mutiny.Mutiny;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
+
 @ApplicationScoped
-public class SombreroUserGroupRepository implements PanacheRepositoryBase<SombreroUserGroup, UUID> {
+public class SombreroUserGroupRepository {
+
     @Inject
     Mutiny.SessionFactory sessionFactory;
 
@@ -23,27 +23,22 @@ public class SombreroUserGroupRepository implements PanacheRepositoryBase<Sombre
                 session.createQuery("SELECT ug FROM SombreroUserGroup ug WHERE ug.user = :user AND ug.group = :group", SombreroUserGroup.class)
                         .setParameter("user", user)
                         .setParameter("group", group)
-                        .getResultList()
-                        .onItem()
-                        .ifNotNull()
-                        .transformToUni(list -> {
-                            if (list.size() > 0) {
-                                return Uni.createFrom().item(list.get(0));
-                            } else {
-                                return Uni.createFrom().nullItem();
-                            }
-                        })
+                        .getSingleResultOrNull()
         );
     }
 
-    public void addUserToGroupByEntity(SombreroUser user, SombreroGroup group) {
-        SombreroUserGroup userGroup = new SombreroUserGroup();
-        userGroup.setUser(user);
-        userGroup.setGroup(group);
-        sessionFactory.withTransaction((session, tx) -> session.merge(userGroup));
+    public Uni<Void> addUserToGroupByUUID(UUID userId, UUID groupId) {
+        String nativeQuery = "INSERT INTO sombrero_user_groups (user_id, group_id) VALUES (?, ?)";
+        return sessionFactory.withTransaction((session, tx) -> session.createNativeQuery(nativeQuery)
+                .setParameter(1, userId)
+                .setParameter(2, groupId)
+                .executeUpdate()
+                .chain(() -> Uni.createFrom().nullItem()));
     }
 
+
     public Uni<SombreroUserGroup> save(SombreroUserGroup userGroup) {
-        return sessionFactory.withTransaction((session, tx) -> session.merge(userGroup));
+        return sessionFactory.withTransaction((session, tx) -> session.merge(userGroup).chain(() -> Uni.createFrom().item(userGroup)));
     }
+
 }

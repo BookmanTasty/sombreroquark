@@ -2,11 +2,19 @@ package com.leyvadev.sombreroquark.model;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "sombrero_group")
+@Table(name = "sombrero_groups")
+@NamedEntityGraph(
+        name = "groupWithPermissions",
+        attributeNodes = {
+                @NamedAttributeNode("permissions")
+        }
+)
 public class SombreroGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,6 +32,14 @@ public class SombreroGroup {
 
     @Column(name = "is_permission_required", nullable = false)
     private boolean isPermissionRequired = false;
+
+    @ManyToMany
+    @JoinTable(
+            name = "sombrero_group_permissions",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
+    private Set<SombreroPermission> permissions = new HashSet<>();
 
     public boolean isPermissionRequired() {
         return isPermissionRequired;
@@ -63,5 +79,13 @@ public class SombreroGroup {
 
     public void setData(String data) {
         this.data = data;
+    }
+
+    public Set<SombreroPermission> getPermissions() {
+        return permissions;
+    }
+
+    public List<String> getPermissionsAsList() {
+        return permissions.stream().map(SombreroPermission::getName).toList();
     }
 }

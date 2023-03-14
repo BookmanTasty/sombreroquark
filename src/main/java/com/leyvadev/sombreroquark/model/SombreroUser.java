@@ -1,6 +1,7 @@
 package com.leyvadev.sombreroquark.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.vertx.core.json.JsonObject;
 
 import javax.persistence.*;
@@ -8,7 +9,7 @@ import java.time.Instant;
 import java.util.*;
 
 @Entity
-@Table(name = "sombrero_user")
+@Table(name = "sombrero_users")
 @NamedEntityGraph(
         name = "userWithGroups",
         attributeNodes = {
@@ -37,7 +38,7 @@ public class SombreroUser {
     private boolean isEmailVerified = false;
     @ManyToMany
     @JoinTable(
-            name = "sombrero_user_group",
+            name = "sombrero_user_groups",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
@@ -123,6 +124,7 @@ public class SombreroUser {
     public void setEmailVerified(boolean emailVerified) {
         isEmailVerified = emailVerified;
     }
+    @JsonProperty("groups")
     public List<String> getGroupsAsList() {
         List<String> groupNames = new ArrayList<>();
         for (SombreroGroup group : groups) {

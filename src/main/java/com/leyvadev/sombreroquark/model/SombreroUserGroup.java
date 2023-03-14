@@ -1,31 +1,24 @@
 package com.leyvadev.sombreroquark.model;
 
+import com.leyvadev.sombreroquark.model.idClasses.SombreroUserGroupId;
+
 import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "sombrero_user_group")
+@Table(name = "sombrero_user_groups")
+@IdClass(SombreroUserGroupId.class)
 public class SombreroUserGroup {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
-    private UUID id;
 
+    @Id
     @ManyToOne
     @JoinColumn(name = "user_id")
     private SombreroUser user;
 
+    @Id
     @ManyToOne
     @JoinColumn(name = "group_id")
     private SombreroGroup group;
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
 
     public SombreroUser getUser() {
         return user;
@@ -42,4 +35,5 @@ public class SombreroUserGroup {
     public void setGroup(SombreroGroup group) {
         this.group = group;
     }
+
 }

@@ -1,15 +1,10 @@
 package com.leyvadev.sombreroquark.services;
 
 
-import com.leyvadev.sombreroquark.model.SombreroAllowedRedirectUrl;
-import com.leyvadev.sombreroquark.model.SombreroGroup;
-import com.leyvadev.sombreroquark.model.SombreroUser;
-import com.leyvadev.sombreroquark.model.SombreroUserGroup;
-import com.leyvadev.sombreroquark.repositories.SombreroAllowedRedirectUrlsRepository;
-import com.leyvadev.sombreroquark.repositories.SombreroGroupRepository;
-import com.leyvadev.sombreroquark.repositories.SombreroUserGroupRepository;
-import com.leyvadev.sombreroquark.repositories.SombreroUserRepository;
+import com.leyvadev.sombreroquark.model.*;
+import com.leyvadev.sombreroquark.repositories.*;
 import com.leyvadev.sombreroquark.utils.PasswordHasher;
+import com.leyvadev.sombreroquark.utils.Permissions;
 import io.quarkus.runtime.Startup;
 import io.quarkus.runtime.StartupEvent;
 import io.smallrye.mutiny.Uni;
@@ -20,10 +15,8 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.ArrayList;
+import java.util.List;
 
 @Startup
 @Singleton
@@ -38,6 +31,10 @@ public class StartupService {
     SombreroAllowedRedirectUrlsRepository sombreroAllowedRedirectUrlsRepository;
     @Inject
     SombreroUserGroupRepository sombreroUserGroupRepository;
+    @Inject
+    SombreroPermissionRepository sombreroPermissionRepository;
+    @Inject
+    SombreroGroupPermissionRepository sombreroGroupPermissionRepository;
 
     @Inject
     @ConfigProperty(name = "sombreroquark.admin.username")
@@ -81,8 +78,17 @@ public class StartupService {
                 LOGGER.info("Default redirect url not found, creating it");
                 createDefaultAllowedUrl().await().indefinitely();
             }
+            List<SombreroPermission> sombreroPermissions = new ArrayList<>();
+            List<String> missingPermissions = sombreroPermissionRepository.findMissingPermissions(Permissions.getPermissions()).await().indefinitely();
+            if (!missingPermissions.isEmpty()) {
+                LOGGER.info("Missing permissions found, creating them");
+                sombreroPermissions = createDefaultPermissions(missingPermissions).await().indefinitely();
+            }
+            if (!sombreroPermissions.isEmpty()) {
+                LOGGER.info("Adding permissions to default group");
+                addPermissionsToGroup(sombreroPermissions, group).await().indefinitely();
+            }
             LOGGER.info("SombreroQuark startup service finished");
-
     }
 
     private Uni<SombreroGroup> createDefaultGroup() {
@@ -107,11 +113,8 @@ public class StartupService {
         }
     }
 
-    private Uni<SombreroUserGroup> createDefaultUserGroup(SombreroUser user, SombreroGroup group) {
-        SombreroUserGroup userGroup = new SombreroUserGroup();
-        userGroup.setUser(user);
-        userGroup.setGroup(group);
-        return sombreroUserGroupRepository.save(userGroup);
+    private Uni<Void> createDefaultUserGroup(SombreroUser user, SombreroGroup group) {
+        return sombreroUserGroupRepository.addUserToGroupByUUID(user.getId(), group.getId());
     }
 
     private Uni<SombreroAllowedRedirectUrl> createDefaultAllowedUrl() {
@@ -121,5 +124,23 @@ public class StartupService {
         url.setCreatedAt(Instant.now());
         url.setData("Default allowed url");
         return sombreroAllowedRedirectUrlsRepository.save(url);
+    }
+
+    private Uni<List<SombreroPermission>> createDefaultPermissions(List<String> permissions) {
+        List<SombreroPermission> sombreroPermissions = new ArrayList<>();
+        for (String permission : permissions) {
+            SombreroPermission sombreroPermission = new SombreroPermission();
+            sombreroPermission.setName(permission);
+            SombreroPermission savedPermission = sombreroPermissionRepository.save(sombreroPermission).await().indefinitely();
+            sombreroPermissions.add(savedPermission);
+        }
+        return Uni.createFrom().item(sombreroPermissions);
+    }
+
+    private Uni<Void> addPermissionsToGroup(List<SombreroPermission> permissions, SombreroGroup group) {
+        for (SombreroPermission permission : permissions) {
+            sombreroGroupPermissionRepository.addPermisionToGroupByUUID(permission.getId(), group.getId()).await().indefinitely();
+        }
+        return Uni.createFrom().nullItem();
     }
 }
