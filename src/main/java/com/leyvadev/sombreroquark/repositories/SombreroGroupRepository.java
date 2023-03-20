@@ -15,13 +15,13 @@ public class SombreroGroupRepository implements PanacheRepositoryBase<SombreroGr
     Mutiny.SessionFactory sessionFactory;
     public Uni<SombreroGroup> findByName(String name) {
         return sessionFactory.withSession(session ->
-                session.createQuery("SELECT g FROM SombreroGroup g WHERE g.name = :name", SombreroGroup.class)
+                session.createQuery("SELECT g FROM SombreroGroup g LEFT JOIN FETCH g.permissions WHERE g.name = :name", SombreroGroup.class)
                         .setParameter("name", name)
                         .getResultList()
                         .onItem()
                         .ifNotNull()
                         .transformToUni(list -> {
-                            if (list.size() > 0) {
+                            if (!list.isEmpty()) {
                                 return Uni.createFrom().item(list.get(0));
                             } else {
                                 return Uni.createFrom().nullItem();

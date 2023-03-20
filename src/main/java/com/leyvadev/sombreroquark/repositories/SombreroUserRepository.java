@@ -62,5 +62,9 @@ public class SombreroUserRepository implements PanacheRepositoryBase<SombreroUse
         });
     }
 
+    public Uni<SombreroUser> update(SombreroUser user) {
+        return sessionFactory.withTransaction((session, tx) -> session.merge(user));
+    }
+
 
 }

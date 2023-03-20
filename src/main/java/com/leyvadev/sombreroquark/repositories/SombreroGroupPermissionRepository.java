@@ -1,11 +1,20 @@
 package com.leyvadev.sombreroquark.repositories;
 
 import io.smallrye.mutiny.Uni;
+
+import io.vertx.sqlclient.Tuple;
+
+import org.hibernate.reactive.mutiny.Mutiny.Query;
+
 import org.hibernate.reactive.mutiny.Mutiny;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+
 @ApplicationScoped
 public class SombreroGroupPermissionRepository {
     @Inject
@@ -28,4 +37,25 @@ public class SombreroGroupPermissionRepository {
                 .executeUpdate()
                 .chain(() -> Uni.createFrom().nullItem()));
     }
+
+    public Uni<List<String>> getMissingPermissions(List<String> groups, List<String> permissions) {
+        String query = "SELECT DISTINCT p.name" +
+                " FROM sombrero_permissions p" +
+                " INNER JOIN sombrero_group_permissions gp ON gp.permission_id = p.id" +
+                " INNER JOIN sombrero_groups g ON g.id = gp.group_id" +
+                " WHERE g.name IN (:groups)";
+        return sessionFactory.withSession(session -> {
+            Query<String> q = session.createNativeQuery(query,String.class);
+            q.setParameter("groups", groups);
+            return q.getResultList();
+        }).onItem().transform(result -> {
+            List<String> missingPermissions = new ArrayList<>();
+            for (String permission : permissions) {
+                if (!result.contains(permission)) {
+                    missingPermissions.add(permission);
+                }
+            }
+            return missingPermissions;
+        });
+        }
 }

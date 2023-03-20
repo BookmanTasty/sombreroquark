@@ -39,4 +39,11 @@ public class EmailPasswordLoginValidator {
                     return user;
                 });
     }
+
+    public Uni<SombreroUser> validateUpdatePaswordData(CredentialsDTO credentials) {
+        if (credentials.getNewPassword() == null || credentials.getNewPassword().isEmpty()) {
+            return Uni.createFrom().failure(new IllegalArgumentException("New password cannot be null or empty"));
+        }
+        return validateLoginData(credentials);
+    }
 }

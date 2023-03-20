@@ -1,11 +1,13 @@
 package com.leyvadev.sombreroquark.services.impl;
 
 import com.leyvadev.sombreroquark.dto.CreateUserDTO;
+import com.leyvadev.sombreroquark.dto.CredentialsDTO;
 import com.leyvadev.sombreroquark.dto.PaginatedRequestDTO;
 import com.leyvadev.sombreroquark.model.SombreroUser;
 import com.leyvadev.sombreroquark.repositories.SombreroUserRepository;
 import com.leyvadev.sombreroquark.services.EmailService;
 import com.leyvadev.sombreroquark.services.SombreroUserService;
+import com.leyvadev.sombreroquark.utils.EmailPasswordLoginValidator;
 import com.leyvadev.sombreroquark.utils.PasswordHasher;
 import com.leyvadev.sombreroquark.utils.UserRegistrationValidator;
 import com.leyvadev.sombreroquark.utils.VerifyEmailValidator;
@@ -29,6 +31,8 @@ public class SombreroUserServiceImpl implements SombreroUserService {
     UserRegistrationValidator userRegistrationValidator;
     @Inject
     VerifyEmailValidator verifyEmailValidator;
+    @Inject
+    EmailPasswordLoginValidator emailPasswordLoginValidator;
     @Inject
     EmailService emailService;
 
@@ -97,6 +101,25 @@ public class SombreroUserServiceImpl implements SombreroUserService {
     public Uni<Response> getPaginatedUsers(PaginatedRequestDTO paginatedRequestDTO) {
         return sombreroUserRepository.getPaginatedUsers(paginatedRequestDTO)
                 .map(users -> Response.ok(users).build());
+    }
+
+    @Override
+    public Uni<Response> findUserByEmail(String email) {
+        return sombreroUserRepository.findByEmail(email)
+                .map(user -> Response.ok(user).build());
+    }
+
+    @Override
+    public Uni<Response> changePassword(CredentialsDTO credentialsDTO) {
+        return emailPasswordLoginValidator.validateUpdatePaswordData(credentialsDTO)
+                .flatMap(user -> {
+                    try {
+                        user.setPassword(PasswordHasher.hashPassword(credentialsDTO.getNewPassword()));
+                    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                        throw new IllegalArgumentException("Password is not valid");
+                    }
+                    return sombreroUserRepository.save(user).map(persistedUser -> Response.ok(persistedUser).build());
+                });
     }
 
     private void sendWelcomeEmail(SombreroUser user) {

@@ -1,6 +1,7 @@
 package com.leyvadev.sombreroquark.services;
 
 import com.leyvadev.sombreroquark.dto.CreateUserDTO;
+import com.leyvadev.sombreroquark.dto.CredentialsDTO;
 import com.leyvadev.sombreroquark.dto.PaginatedRequestDTO;
 import com.leyvadev.sombreroquark.model.SombreroUser;
 import io.smallrye.mutiny.Uni;
@@ -13,5 +14,7 @@ public interface SombreroUserService {
     Uni<SombreroUser> createUserWithOAuth(CreateUserDTO user);
     Uni<Response> verifyEmail(String token, String redirect);
     Uni<Response> getPaginatedUsers(PaginatedRequestDTO paginatedRequestDTO);
+    Uni<Response> findUserByEmail(String email);
+    Uni<Response> changePassword(CredentialsDTO credentialsDTO);
 
 }

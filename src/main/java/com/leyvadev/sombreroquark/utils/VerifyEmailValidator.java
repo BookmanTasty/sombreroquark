@@ -76,4 +76,11 @@ public class VerifyEmailValidator {
                     return userRepository.findByEmail(email);
                 });
     }
+
+    public Uni<SombreroUser> validateMagicLinkEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be null or empty");
+        }
+        return userRepository.findByEmail(email);
+    }
 }

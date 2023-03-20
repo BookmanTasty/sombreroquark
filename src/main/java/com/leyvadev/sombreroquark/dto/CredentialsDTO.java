@@ -4,6 +4,7 @@ public class CredentialsDTO
 {
     private String email;
     private String password;
+    private String newPassword;
 
     public String getEmail() {
         return email;
@@ -19,5 +20,13 @@ public class CredentialsDTO
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getNewPassword() {
+        return newPassword;
+    }
+
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
     }
 }

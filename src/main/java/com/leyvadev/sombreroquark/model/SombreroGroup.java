@@ -1,5 +1,8 @@
 package com.leyvadev.sombreroquark.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.List;
@@ -84,8 +87,12 @@ public class SombreroGroup {
     public Set<SombreroPermission> getPermissions() {
         return permissions;
     }
-
+    @JsonProperty("permissions")
     public List<String> getPermissionsAsList() {
         return permissions.stream().map(SombreroPermission::getName).toList();
+    }
+    @JsonIgnore
+    public boolean hasPermission(String permission) {
+        return permissions.stream().anyMatch(p -> p.getName().equals(permission));
     }
 }
