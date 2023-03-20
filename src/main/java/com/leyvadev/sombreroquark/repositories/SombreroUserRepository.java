@@ -26,7 +26,7 @@ public class SombreroUserRepository implements PanacheRepositoryBase<SombreroUse
                         .onItem()
                         .ifNotNull()
                         .transformToUni(list -> {
-                            if (list.size() > 0) {
+                            if (!list.isEmpty()) {
                                 return Uni.createFrom().item(list.get(0));
                             } else {
                                 return Uni.createFrom().nullItem();

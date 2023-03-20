@@ -1,4 +1,4 @@
-package com.leyvadev.sombreroquark.model.idClasses;
+package com.leyvadev.sombreroquark.model.idclasses;
 
 import java.io.Serializable;
 import java.util.Objects;

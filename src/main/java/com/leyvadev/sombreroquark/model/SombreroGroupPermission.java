@@ -1,6 +1,6 @@
 package com.leyvadev.sombreroquark.model;
 
-import com.leyvadev.sombreroquark.model.idClasses.SombreroGroupPermissionId;
+import com.leyvadev.sombreroquark.model.idclasses.SombreroGroupPermissionId;
 
 import javax.persistence.*;
 

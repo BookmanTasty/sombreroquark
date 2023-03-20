@@ -29,6 +29,8 @@ public class JwtServiceImpl implements JwtService {
     private static final String REFRESH_AUDIENCE = "refresh";
     private static final String RESET_AUDIENCE = "reset";
     private static final String ERROR_CREATING_TOKEN = "Error creating token";
+    private static final String USER_ID = "userId";
+    private static final String INVALID_TOKEN = "Invalid token";
     @Inject
     JwtUtils jwtUtils;
     @ConfigProperty(name = "smallrye.jwt.issuer")
@@ -41,8 +43,8 @@ public class JwtServiceImpl implements JwtService {
         claims.setIssuer(issuer);
         claims.setAudience(EMAIL_AUDIENCE);
         claims.setSubject(user.getEmail());
-        claims.setClaim("userId", user.getId());
-        claims.setClaim("email", user.getEmail());
+        claims.setClaim(USER_ID, user.getId());
+        claims.setClaim(EMAIL_AUDIENCE, user.getEmail());
         claims.setGeneratedJwtId();
         claims.setIssuedAtToNow();
         claims.setExpirationTimeMinutesInTheFuture(60);
@@ -75,10 +77,10 @@ public class JwtServiceImpl implements JwtService {
             JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
             return jwtClaims.getSubject();
         } catch ( MalformedClaimException e) {
-            LOGGER.error("Invalid token", e);
+            LOGGER.error(INVALID_TOKEN, e);
             throw new IllegalArgumentExceptionWithTemplate("Invalid link",null);
         } catch (InvalidJwtException e) {
-            LOGGER.error("Invalid token", e);
+            LOGGER.error(INVALID_TOKEN, e);
             throw new  IllegalArgumentExceptionWithTemplate("Expired link",null);
         }
     }
@@ -99,8 +101,8 @@ public class JwtServiceImpl implements JwtService {
             JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
             return jwtClaims.getSubject();
         } catch (InvalidJwtException | MalformedClaimException e) {
-            LOGGER.error("Invalid token", e);
-            throw new IllegalArgumentException("Invalid token");
+            LOGGER.error(INVALID_TOKEN, e);
+            throw new IllegalArgumentException(INVALID_TOKEN);
         }
     }
 
@@ -120,8 +122,8 @@ public class JwtServiceImpl implements JwtService {
             JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
             return jwtClaims.getSubject();
         } catch (InvalidJwtException | MalformedClaimException e) {
-            LOGGER.error("Invalid token", e);
-            throw new IllegalArgumentException("Invalid token");
+            LOGGER.error(INVALID_TOKEN, e);
+            throw new IllegalArgumentException(INVALID_TOKEN);
         }
     }
 
@@ -132,8 +134,8 @@ public class JwtServiceImpl implements JwtService {
         claims.setIssuer(issuer);
         claims.setAudience(ACCESS_AUDIENCE);
         claims.setSubject(user.getEmail());
-        claims.setClaim("userId", user.getId());
-        claims.setClaim("email", user.getEmail());
+        claims.setClaim(USER_ID, user.getId());
+        claims.setClaim(EMAIL_AUDIENCE, user.getEmail());
         claims.setClaim("groups", user.getGroupsAsList());
         claims.setGeneratedJwtId();
         claims.setIssuedAtToNow();
@@ -162,7 +164,7 @@ public class JwtServiceImpl implements JwtService {
         claims.setSubject(user.getEmail());
         claims.setGeneratedJwtId();
         claims.setIssuedAtToNow();
-        claims.setExpirationTimeMinutesInTheFuture(60 * 24 * 7);
+        claims.setExpirationTimeMinutesInTheFuture(10080);
 
         JsonWebSignature jws = new JsonWebSignature();
         jws.setPayload(claims.toJson());
@@ -185,8 +187,8 @@ public class JwtServiceImpl implements JwtService {
         claims.setIssuer(issuer);
         claims.setAudience(RESET_AUDIENCE);
         claims.setSubject(user.getEmail());
-        claims.setClaim("userId", user.getId());
-        claims.setClaim("email", user.getEmail());
+        claims.setClaim(USER_ID, user.getId());
+        claims.setClaim(EMAIL_AUDIENCE, user.getEmail());
         claims.setGeneratedJwtId();
         claims.setIssuedAtToNow();
         claims.setExpirationTimeMinutesInTheFuture(60);
@@ -213,8 +215,8 @@ public class JwtServiceImpl implements JwtService {
         claims.setIssuer(issuer);
         claims.setAudience(EMAIL_AUDIENCE);
         claims.setSubject(user.getEmail());
-        claims.setClaim("userId", user.getId());
-        claims.setClaim("email", user.getEmail());
+        claims.setClaim(USER_ID, user.getId());
+        claims.setClaim(EMAIL_AUDIENCE, user.getEmail());
         claims.setGeneratedJwtId();
         claims.setIssuedAtToNow();
         claims.setExpirationTimeMinutesInTheFuture(60);

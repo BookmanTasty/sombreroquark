@@ -15,6 +15,8 @@ import java.util.Map;
 
 @ApplicationScoped
 public class EmailServiceImpl implements EmailService {
+
+    private static final String REDIRECT = "&redirect=";
     @Inject
     Mailer mailer;
     @Inject
@@ -51,7 +53,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendEmailConfirmation(SombreroUser user, String redirect) {
         String template = emailTemplateClient.downloadTemplate(verifyEmailTemplateUrl);
         Map<String, String> values = emailTemplateParser.getVariableValuesFromSombreroUserAsMap(template, user);
-        String verificationLink = sombreroquarkPublicUrl + quarkusHttpRootPath  + "api/users/verify/email?token=" + jwtService.generateEmailConfirmationToken(user) + "&redirect=" + redirect;
+        String verificationLink = sombreroquarkPublicUrl + quarkusHttpRootPath  + "api/users/verify/email?token=" + jwtService.generateEmailConfirmationToken(user) + REDIRECT + redirect;
         values.put("verificationLink", verificationLink);
         String parsedTemplate = emailTemplateParser.parseTemplate(template, values);
         mailer.send(Mail.withHtml(user.getEmail(), "Verify your email", parsedTemplate));
@@ -61,7 +63,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendEmailMagicLink(SombreroUser user, String redirect) {
         String template = emailTemplateClient.downloadTemplate(magicLinkTemplateUrl);
         Map<String, String> values = emailTemplateParser.getVariableValuesFromSombreroUserAsMap(template, user);
-        String magicLink = sombreroquarkPublicUrl + quarkusHttpRootPath  + "api/auth/login/magic?token=" + jwtService.generateEmailConfirmationToken(user) + "&redirect=" + redirect;
+        String magicLink = sombreroquarkPublicUrl + quarkusHttpRootPath  + "api/auth/login/magic?token=" + jwtService.generateEmailConfirmationToken(user) + REDIRECT + redirect;
         values.put("magicLink", magicLink);
         String parsedTemplate = emailTemplateParser.parseTemplate(template, values);
         mailer.send(Mail.withHtml(user.getEmail(), "Login with magic link", parsedTemplate));
@@ -71,7 +73,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendResetPasswordEmail(SombreroUser user, String redirect) {
         String template = emailTemplateClient.downloadTemplate(resetPasswordTemplateUrl);
         Map<String, String> values = emailTemplateParser.getVariableValuesFromSombreroUserAsMap(template, user);
-        String resetLink = sombreroquarkPublicUrl + quarkusHttpRootPath  + "api/users/reset/password?token=" + jwtService.generateResetPasswordToken(user) + "&redirect=" + redirect;
+        String resetLink = sombreroquarkPublicUrl + quarkusHttpRootPath  + "api/users/reset/password?token=" + jwtService.generateResetPasswordToken(user) + REDIRECT + redirect;
         values.put("resetLink", resetLink);
         String parsedTemplate = emailTemplateParser.parseTemplate(template, values);
         mailer.send(Mail.withHtml(user.getEmail(), "Reset your password", parsedTemplate));

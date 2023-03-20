@@ -2,10 +2,12 @@ package com.leyvadev.sombreroquark.services.impl;
 
 import com.leyvadev.sombreroquark.dto.CreateUserDTO;
 import com.leyvadev.sombreroquark.dto.CredentialsDTO;
+import com.leyvadev.sombreroquark.dto.DefaultResponseDTO;
 import com.leyvadev.sombreroquark.dto.PaginatedRequestDTO;
 import com.leyvadev.sombreroquark.model.SombreroUser;
 import com.leyvadev.sombreroquark.repositories.SombreroUserRepository;
 import com.leyvadev.sombreroquark.services.EmailService;
+import com.leyvadev.sombreroquark.services.JwtService;
 import com.leyvadev.sombreroquark.services.SombreroUserService;
 import com.leyvadev.sombreroquark.utils.EmailPasswordLoginValidator;
 import com.leyvadev.sombreroquark.utils.PasswordHasher;
@@ -40,6 +42,8 @@ public class SombreroUserServiceImpl implements SombreroUserService {
     VerifyEmailValidator verifyEmailValidator;
     @Inject
     EmailPasswordLoginValidator emailPasswordLoginValidator;
+    @Inject
+    JwtService jwtService;
     @Inject
     EmailService emailService;
 
@@ -138,7 +142,7 @@ public class SombreroUserServiceImpl implements SombreroUserService {
                     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                         throw new IllegalArgumentException(PASSWORD_IS_NOT_VALID);
                     }
-                    return sombreroUserRepository.save(user).map(persistedUser -> Response.seeOther(URI.create(redirect)).build())
+                    return sombreroUserRepository.save(user).map(persistedUser -> Response.ok(new DefaultResponseDTO("Email successfully sent","200")).build())
                             .onItem().invoke(response ->
                                 sendPasswordResetEmail(user, redirect)
                             );
@@ -150,8 +154,8 @@ public class SombreroUserServiceImpl implements SombreroUserService {
         return verifyEmailValidator.validateResetPasswordToken(token, redirect)
                 .flatMap(user -> {
                     LocalDateTime expiration = LocalDateTime.now().plusHours(1);
-                    Cookie cookie = new Cookie(RESET_PASSWORD_TOKEN, token,"/", null);
-                    NewCookie newCookie = new NewCookie(cookie, RESET_PASSWORD_TOKEN, (int) expiration.toEpochSecond(ZoneOffset.UTC), null,true,true);
+                    Cookie cookie = new Cookie(RESET_PASSWORD_TOKEN, jwtService.generatePasswordResetToken(user),"/", null);
+                    NewCookie newCookie = new NewCookie(cookie,RESET_PASSWORD_TOKEN , (int) expiration.toEpochSecond(ZoneOffset.UTC), null,true,true);
                     return Uni.createFrom().item(Response.seeOther(URI.create(redirect)).cookie(newCookie).build());
                 });
     }

@@ -12,7 +12,6 @@ import io.smallrye.mutiny.Uni;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.logging.Logger;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.RsaJsonWebKey;
 
@@ -25,7 +24,8 @@ import java.util.Map;
 @ApplicationScoped
 public class OauthServiceImpl implements OauthService {
 
-    private static final Logger LOGGER = Logger.getLogger(OauthServiceImpl.class);
+    private static final String RESPONSE_TYPE = "?response_type=code";
+    private static final String GOOGLE = "google";
     @ConfigProperty(name = "sombreroquark.oauth.google.url")
     String googleUrl;
     @ConfigProperty(name = "sombreroquark.oauth.google.client-id")
@@ -36,9 +36,6 @@ public class OauthServiceImpl implements OauthService {
     String googleRedirectUri;
     @ConfigProperty(name = "sombreroquark.oauth.google.client-secret")
     String googleClientSecret;
-    private static final String RESPONSE_TYPE = "?response_type=code";
-
-
     @Inject
     RedirectUrlValidator redirectUrlValidator;
     @RestClient
@@ -63,7 +60,7 @@ public class OauthServiceImpl implements OauthService {
         }
         return redirectUrlValidator.validateRedirectUrl(redirect)
                 .map(isValid -> {
-                    if (!isValid) {
+                    if (Boolean.FALSE.equals(isValid)) {
                         throw new IllegalArgumentException("Redirect URL not allowed");
                     }
 
@@ -71,7 +68,7 @@ public class OauthServiceImpl implements OauthService {
                         throw new IllegalArgumentException("Provider cannot be null or empty");
                     }
 
-                    if (provider.equals("google")) {
+                    if (provider.equals(GOOGLE)) {
 
                         url.append(googleUrl)
                                 .append(RESPONSE_TYPE)
@@ -103,7 +100,7 @@ public class OauthServiceImpl implements OauthService {
         String[] stateParts = decodedState.split("\\|");
         String provider = stateParts[0];
         String redirect = stateParts[1];
-        if (provider.equals("google")) {
+        if (provider.equals(GOOGLE)) {
             return googleOAuthClient.getToken(code, googleClientId, googleClientSecret, googleRedirectUri, "authorization_code")
                     .flatMap(token -> {
                         if (token == null) {
@@ -111,7 +108,7 @@ public class OauthServiceImpl implements OauthService {
                         }
                         Map<String, Object> claims = jwtUtils.getClaimsFromTokenProvider(token.getIdToken(),provider);
                         Map<String, Object> data = new java.util.HashMap<>();
-                        data.put("google", claims);
+                        data.put(GOOGLE, claims);
                         CreateUserDTO user = new CreateUserDTO();
                         user.setEmail((String) claims.get("email"));
                         user.setUsername((String) claims.get("email"));

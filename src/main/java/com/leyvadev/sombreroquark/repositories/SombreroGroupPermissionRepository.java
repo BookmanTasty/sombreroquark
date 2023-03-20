@@ -2,7 +2,6 @@ package com.leyvadev.sombreroquark.repositories;
 
 import io.smallrye.mutiny.Uni;
 
-import io.vertx.sqlclient.Tuple;
 
 import org.hibernate.reactive.mutiny.Mutiny.Query;
 
@@ -10,7 +9,6 @@ import org.hibernate.reactive.mutiny.Mutiny;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

@@ -21,6 +21,10 @@ public class PasswordHasher {
     private static final int ITERATIONS = 65536;
     private static final int KEY_LENGTH = 256;
 
+    private PasswordHasher() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static String hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[SALT_LENGTH];

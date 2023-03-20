@@ -1,9 +1,8 @@
 package com.leyvadev.sombreroquark.model;
 
-import com.leyvadev.sombreroquark.model.idClasses.SombreroUserGroupId;
+import com.leyvadev.sombreroquark.model.idclasses.SombreroUserGroupId;
 
 import javax.persistence.*;
-import java.util.UUID;
 
 @Entity
 @Table(name = "sombrero_user_groups")
