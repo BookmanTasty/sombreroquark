@@ -30,7 +30,8 @@ public class EmailServiceImpl implements EmailService {
     String verifyEmailTemplateUrl;
     @ConfigProperty(name = "remote.template.magic-link.url")
     String magicLinkTemplateUrl;
-
+    @ConfigProperty(name = "remote.template.reset-password.url")
+    String resetPasswordTemplateUrl;
     @ConfigProperty(name = "sombreroquark.public.url")
     String sombreroquarkPublicUrl;
     @ConfigProperty(name = "quarkus.http.root-path")
@@ -64,5 +65,15 @@ public class EmailServiceImpl implements EmailService {
         values.put("magicLink", magicLink);
         String parsedTemplate = emailTemplateParser.parseTemplate(template, values);
         mailer.send(Mail.withHtml(user.getEmail(), "Login with magic link", parsedTemplate));
+    }
+
+    @Override
+    public void sendResetPasswordEmail(SombreroUser user, String redirect) {
+        String template = emailTemplateClient.downloadTemplate(resetPasswordTemplateUrl);
+        Map<String, String> values = emailTemplateParser.getVariableValuesFromSombreroUserAsMap(template, user);
+        String resetLink = sombreroquarkPublicUrl + quarkusHttpRootPath  + "api/users/reset/password?token=" + jwtService.generateResetPasswordToken(user) + "&redirect=" + redirect;
+        values.put("resetLink", resetLink);
+        String parsedTemplate = emailTemplateParser.parseTemplate(template, values);
+        mailer.send(Mail.withHtml(user.getEmail(), "Reset your password", parsedTemplate));
     }
 }

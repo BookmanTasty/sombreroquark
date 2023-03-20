@@ -46,4 +46,15 @@ public class EmailPasswordLoginValidator {
         }
         return validateLoginData(credentials);
     }
+
+    public Uni<SombreroUser> validateResetPasswordData(CredentialsDTO credentials) {
+        if (credentials.getNewPassword() == null || credentials.getNewPassword().isEmpty()) {
+            return Uni.createFrom().failure(new IllegalArgumentException("New password cannot be null or empty"));
+        }
+        if (credentials.getEmail() == null || credentials.getEmail().isEmpty()) {
+            return Uni.createFrom().failure(new IllegalArgumentException("Email cannot be null or empty"));
+        }
+        return userRepository.findByEmail(credentials.getEmail())
+                .onItem().ifNull().failWith(new IllegalArgumentException("User not found"));
+    }
 }

@@ -105,6 +105,27 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
+    public String verifyResetPasswordToken(String token) {
+        RsaJsonWebKey rsaJsonWebKey = jwtUtils.getRsaJsonWebKey();
+        JwtConsumer jwtConsumer = new JwtConsumerBuilder()
+                .setRequireExpirationTime()
+                .setAllowedClockSkewInSeconds(30)
+                .setRequireSubject()
+                .setExpectedAudience(RESET_AUDIENCE)
+                .setExpectedIssuer(issuer)
+                .setVerificationKey(rsaJsonWebKey.getKey())
+                .setJwsAlgorithmConstraints(AlgorithmConstraints.ConstraintType.PERMIT, rsaJsonWebKey.getAlgorithm())
+                .build();
+        try {
+            JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
+            return jwtClaims.getSubject();
+        } catch (InvalidJwtException | MalformedClaimException e) {
+            LOGGER.error("Invalid token", e);
+            throw new IllegalArgumentException("Invalid token");
+        }
+    }
+
+    @Override
     public String generateAccessToken(SombreroUser user) {
         RsaJsonWebKey rsaJsonWebKey = jwtUtils.getRsaJsonWebKey();
         JwtClaims claims = new JwtClaims();
@@ -142,6 +163,33 @@ public class JwtServiceImpl implements JwtService {
         claims.setGeneratedJwtId();
         claims.setIssuedAtToNow();
         claims.setExpirationTimeMinutesInTheFuture(60 * 24 * 7);
+
+        JsonWebSignature jws = new JsonWebSignature();
+        jws.setPayload(claims.toJson());
+        jws.setKey(rsaJsonWebKey.getPrivateKey());
+        jws.setKeyIdHeaderValue(rsaJsonWebKey.getKeyId());
+        jws.setAlgorithmHeaderValue(rsaJsonWebKey.getAlgorithm());
+
+        try {
+            return jws.getCompactSerialization();
+        } catch (JoseException e) {
+            LOGGER.error(ERROR_CREATING_TOKEN, e);
+            throw new IllegalArgumentException(ERROR_CREATING_TOKEN);
+        }
+    }
+
+    @Override
+    public String generateResetPasswordToken(SombreroUser user) {
+        RsaJsonWebKey rsaJsonWebKey = jwtUtils.getRsaJsonWebKey();
+        JwtClaims claims = new JwtClaims();
+        claims.setIssuer(issuer);
+        claims.setAudience(RESET_AUDIENCE);
+        claims.setSubject(user.getEmail());
+        claims.setClaim("userId", user.getId());
+        claims.setClaim("email", user.getEmail());
+        claims.setGeneratedJwtId();
+        claims.setIssuedAtToNow();
+        claims.setExpirationTimeMinutesInTheFuture(60);
 
         JsonWebSignature jws = new JsonWebSignature();
         jws.setPayload(claims.toJson());

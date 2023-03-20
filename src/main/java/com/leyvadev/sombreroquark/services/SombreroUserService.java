@@ -6,6 +6,7 @@ import com.leyvadev.sombreroquark.dto.PaginatedRequestDTO;
 import com.leyvadev.sombreroquark.model.SombreroUser;
 import io.smallrye.mutiny.Uni;
 
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 public interface SombreroUserService {
@@ -16,5 +17,8 @@ public interface SombreroUserService {
     Uni<Response> getPaginatedUsers(PaginatedRequestDTO paginatedRequestDTO);
     Uni<Response> findUserByEmail(String email);
     Uni<Response> changePassword(CredentialsDTO credentialsDTO);
+    Uni<Response> sendResetPassword(String email, String redirect);
+    Uni<Response> verifyResetPassword(String token, String redirect);
+    Uni<Response> resetPassword(HttpHeaders headers, CredentialsDTO credentialsDTO);
 
 }

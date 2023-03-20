@@ -3,6 +3,7 @@ package com.leyvadev.sombreroquark.resources;
 import com.leyvadev.sombreroquark.dto.CreateUserDTO;
 import com.leyvadev.sombreroquark.dto.CredentialsDTO;
 import com.leyvadev.sombreroquark.dto.PaginatedRequestDTO;
+import com.leyvadev.sombreroquark.interceptor.ResetTokenFilter;
 import com.leyvadev.sombreroquark.services.SombreroUserService;
 import com.leyvadev.sombreroquark.utils.Permissions;
 import com.leyvadev.sombreroquark.utils.VerifyPermisionsInGroups;
@@ -15,6 +16,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
@@ -52,7 +54,6 @@ public class UserResource {
 
     }
 
-
     @POST
     @Authenticated
     @Path("/me")
@@ -77,7 +78,21 @@ public class UserResource {
         return sombreroUserService.changePassword(credentialsDTO);
     }
 
+    @POST
+    @Path("/reset/password")
+    public Uni<Response> sendResetPasswordEmail(@QueryParam("email") String email, @QueryParam("redirect") String redirect) {
+        return sombreroUserService.sendResetPassword(email, redirect);
+    }
+    @GET
+    @Path("/reset/password")
+    public Uni<Response> resetPasswordVerify(@QueryParam("token") String token, @QueryParam("redirect") String redirect) {
+        return sombreroUserService.verifyResetPassword(token, redirect);
+    }
 
-
-
+    @PUT
+    @ResetTokenFilter
+    @Path("/reset/password")
+    public Uni<Response> resetPassword(@Context HttpHeaders headers,CredentialsDTO credentialsDTO) {
+        return sombreroUserService.resetPassword(headers,credentialsDTO);
+    }
 }
