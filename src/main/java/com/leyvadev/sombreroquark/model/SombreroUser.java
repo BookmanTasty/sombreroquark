@@ -29,7 +29,7 @@ public class SombreroUser {
     private String password;
 
     @Column(name = "data", columnDefinition = "jsonb")
-    private JsonObject data ;
+    private JsonObject data;
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
     @Column(name = "is_active", nullable = false)
@@ -52,7 +52,7 @@ public class SombreroUser {
     public void setGroups(Set<SombreroGroup> groups) {
         this.groups = groups;
     }
-
+    @JsonIgnore
     public JsonObject getData() {
         return data;
     }
@@ -64,8 +64,11 @@ public class SombreroUser {
     public void setData(Map<String, Object> data) {
         this.data = JsonObject.mapFrom(data);
     }
-    @JsonIgnore
+    @JsonProperty("data")
     public Map<String, Object> getDataAsMap() {
+        if (data == null) {
+            return new HashMap<>();
+        }
         return data.getMap();
     }
 

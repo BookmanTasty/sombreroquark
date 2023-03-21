@@ -28,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Map;
 
 @ApplicationScoped
 public class SombreroUserServiceImpl implements SombreroUserService {
@@ -170,6 +171,20 @@ public class SombreroUserServiceImpl implements SombreroUserService {
                     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                         throw new IllegalArgumentException(PASSWORD_IS_NOT_VALID);
                     }
+                    return sombreroUserRepository.save(user).map(persistedUser -> Response.ok(persistedUser).build());
+                });
+    }
+
+    @Override
+    public Uni<Response> updateDataUser(Map<String, Object> data, String email) {
+        return sombreroUserRepository.findByEmail(email)
+                .flatMap(user -> {
+                    if (user == null) {
+                        throw new IllegalArgumentException("User not found");
+                    }
+                    Map<String, Object> userData = user.getDataAsMap();
+                    userData.putAll(data);
+                    user.setData(userData);
                     return sombreroUserRepository.save(user).map(persistedUser -> Response.ok(persistedUser).build());
                 });
     }

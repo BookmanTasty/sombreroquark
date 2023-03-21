@@ -20,7 +20,6 @@ public class ResetTokenFilterImpl implements ContainerRequestFilter  {
 
     @Inject
     JwtService jwtService;
-
     @Override
     public void filter(ContainerRequestContext containerRequestContext) throws IOException {
         Cookie cookie = containerRequestContext.getCookies().get("resetPasswordToken");

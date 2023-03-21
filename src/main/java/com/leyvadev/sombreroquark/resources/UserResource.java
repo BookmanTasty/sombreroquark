@@ -19,6 +19,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.util.Map;
 
 @Path("/api/users")
 @Produces("application/json")
@@ -72,10 +73,27 @@ public class UserResource {
 
     @POST
     @Authenticated
+    @Path("/updatedata/{email}")
+    public Uni<Response> updateUserData(@Context SecurityContext securityContext, Map<String,Object> data, @PathParam("email") String email) {
+        String[] groups = jwt.getGroups().toArray(String[]::new);
+        String[] permissions = new String[]{Permissions.UPDATE_USER, Permissions.VIEW_USERS};
+        return verifyPermisionsInGroups.verifyPermissionsInGroups(groups, permissions)
+                .chain(() -> sombreroUserService.updateDataUser(data, email));
+    }
+
+    @POST
+    @Authenticated
     @Path("/me/changepassword")
     public Uni<Response> changePassword(@Context SecurityContext securityContext, CredentialsDTO credentialsDTO) {
         credentialsDTO.setEmail(jwt.getClaim("email"));
         return sombreroUserService.changePassword(credentialsDTO);
+    }
+
+    @POST
+    @Authenticated
+    @Path("/me/updatedata")
+    public Uni<Response> updateData(@Context SecurityContext securityContext, Map<String,Object> data) {
+        return sombreroUserService.updateDataUser(data, jwt.getClaim("email"));
     }
 
     @POST

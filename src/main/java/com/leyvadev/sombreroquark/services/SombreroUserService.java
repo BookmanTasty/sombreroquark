@@ -8,6 +8,7 @@ import io.smallrye.mutiny.Uni;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.util.Map;
 
 public interface SombreroUserService {
     // servicio para crear un usuario
@@ -20,5 +21,6 @@ public interface SombreroUserService {
     Uni<Response> sendResetPassword(String email, String redirect);
     Uni<Response> verifyResetPassword(String token, String redirect);
     Uni<Response> resetPassword(HttpHeaders headers, CredentialsDTO credentialsDTO);
+    Uni<Response> updateDataUser(Map<String, Object> data, String email);
 
 }
