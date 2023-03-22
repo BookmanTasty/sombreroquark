@@ -29,6 +29,23 @@ public class SombreroPermissionRepository implements PanacheRepositoryBase<Sombr
         });
     }
 
+    public Uni<SombreroPermission> findByUUID(String id) {
+        return sessionFactory.withSession(session ->
+                session.createQuery("SELECT p FROM SombreroPermission p WHERE p.id = :id", SombreroPermission.class)
+                        .setParameter("id", UUID.fromString(id))
+                        .getResultList()
+                        .onItem()
+                        .ifNotNull()
+                        .transformToUni(list -> {
+                            if (!list.isEmpty()) {
+                                return Uni.createFrom().item(list.get(0));
+                            } else {
+                                return Uni.createFrom().nullItem();
+                            }
+                        })
+        );
+    }
+
     public Uni<SombreroPermission> save(SombreroPermission permission) {
         return sessionFactory.withTransaction((session, tx) -> session.merge(permission));
     }

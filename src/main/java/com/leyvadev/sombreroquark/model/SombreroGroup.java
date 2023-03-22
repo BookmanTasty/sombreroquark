@@ -25,7 +25,7 @@ public class SombreroGroup {
 
     @Column(name = "name", unique = true, nullable = false)
     private String name;
-
+    @JsonIgnore
     @ManyToMany(mappedBy = "groups")
     private Set<SombreroUser> users = new HashSet<>();
 
@@ -33,8 +33,7 @@ public class SombreroGroup {
     @Column(name = "data", nullable = false)
     private String data;
 
-    @Column(name = "is_permission_required", nullable = false)
-    private boolean isPermissionRequired = false;
+    private Integer priority;
 
     @ManyToMany
     @JoinTable(
@@ -44,12 +43,12 @@ public class SombreroGroup {
     )
     private Set<SombreroPermission> permissions = new HashSet<>();
 
-    public boolean isPermissionRequired() {
-        return isPermissionRequired;
+    public Integer getPriority() {
+        return priority;
     }
 
-    public void setPermissionRequired(boolean permissionRequired) {
-        isPermissionRequired = permissionRequired;
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 
     public UUID getId() {

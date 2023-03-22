@@ -27,6 +27,7 @@ public class SombreroGroupPermissionRepository {
                 .chain(() -> Uni.createFrom().nullItem()));
     }
 
+
     public Uni<Void> removePermisionToGroupByUUID (UUID permissionId, UUID groupId) {
         String nativeQuery = "DELETE FROM sombrero_group_permissions WHERE permission_id = ? AND group_id = ?";
         return sessionFactory.withTransaction((session, tx) -> session.createNativeQuery(nativeQuery)

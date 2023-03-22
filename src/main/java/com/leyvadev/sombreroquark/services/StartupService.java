@@ -94,7 +94,7 @@ public class StartupService {
     private Uni<SombreroGroup> createDefaultGroup() {
         SombreroGroup group = new SombreroGroup();
         group.setName(adminGroup);
-        group.setPermissionRequired(true);
+        group.setPriority(0);
         group.setData("SombreroAdmin default group");
         return groupRepository.save(group);
     }

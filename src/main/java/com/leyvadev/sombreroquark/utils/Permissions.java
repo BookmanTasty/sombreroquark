@@ -14,6 +14,7 @@ public final class Permissions implements Serializable {
     public static final String UPDATE_ROLE = "update_role";
     public static final String DELETE_ROLE = "delete_role";
     public static final String VIEW_ROLES = "view_roles";
+    public static final String VIEW_PERMISSIONS = "view_permissions";
     public static final String CHANGE_PASSWORD = "change_password";
     public static final String RESET_PASSWORD = "reset_password";
     public static final String VIEW_GROUPS = "view_groups";
@@ -23,8 +24,8 @@ public final class Permissions implements Serializable {
     public static final String DELETE_GROUP = "delete_group";
     public static final String ASSIGN_USER_TO_GROUP = "assign_user_to_group";
     public static final String REMOVE_USER_FROM_GROUP = "remove_user_from_group";
-    public static final String ASSIGN_PERMISSION_TO_ROLE = "assign_permission_to_role";
-    public static final String REMOVE_PERMISSION_FROM_ROLE = "remove_permission_from_role";
+    public static final String ASSIGN_PERMISSION_TO_GROUP = "assign_permission_to_group";
+    public static final String REMOVE_PERMISSION_FROM_GROUP = "remove_permission_from_group";
     public static final String CREATE_PERMISSION = "create_permission";
     public static final String READ_PERMISSION = "read_permission";
     public static final String UPDATE_PERMISSION = "update_permission";
@@ -33,8 +34,6 @@ public final class Permissions implements Serializable {
     public static final String REMOVE_ROLE_FROM_USER = "remove_role_from_user";
     public static final String ASSIGN_GROUP_TO_USER = "assign_group_to_user";
     public static final String REMOVE_GROUP_FROM_USER = "remove_group_from_user";
-    public static final String ASSIGN_PERMISSION_TO_GROUP = "assign_permission_to_group";
-    public static final String REMOVE_PERMISSION_FROM_GROUP = "remove_permission_from_group";
     public static final String VIEW_AUDIT_LOGS = "view_audit_logs";
     public static final String EXPORT_DATA = "export_data";
 
@@ -59,8 +58,6 @@ public final class Permissions implements Serializable {
                 DELETE_GROUP,
                 ASSIGN_USER_TO_GROUP,
                 REMOVE_USER_FROM_GROUP,
-                ASSIGN_PERMISSION_TO_ROLE,
-                REMOVE_PERMISSION_FROM_ROLE,
                 CREATE_PERMISSION,
                 READ_PERMISSION,
                 UPDATE_PERMISSION,
@@ -72,7 +69,8 @@ public final class Permissions implements Serializable {
                 ASSIGN_PERMISSION_TO_GROUP,
                 REMOVE_PERMISSION_FROM_GROUP,
                 VIEW_AUDIT_LOGS,
-                EXPORT_DATA
+                EXPORT_DATA,
+                VIEW_PERMISSIONS
         );
     }
 }

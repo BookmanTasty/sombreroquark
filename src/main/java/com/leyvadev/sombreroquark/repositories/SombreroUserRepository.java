@@ -66,5 +66,22 @@ public class SombreroUserRepository implements PanacheRepositoryBase<SombreroUse
         return sessionFactory.withTransaction((session, tx) -> session.merge(user));
     }
 
+    public Uni<SombreroUser> findByUUID(String id) {
+        return sessionFactory.withSession(session ->
+                session.createQuery("SELECT u FROM SombreroUser u LEFT JOIN FETCH u.groups WHERE u.id = :id", SombreroUser.class)
+                        .setParameter("id", UUID.fromString(id))
+                        .getResultList()
+                        .onItem()
+                        .ifNotNull()
+                        .transformToUni(list -> {
+                            if (!list.isEmpty()) {
+                                return Uni.createFrom().item(list.get(0));
+                            } else {
+                                return Uni.createFrom().nullItem();
+                            }
+                        })
+        );
+    }
+
 
 }

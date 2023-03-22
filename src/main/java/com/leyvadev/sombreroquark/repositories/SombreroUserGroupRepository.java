@@ -36,6 +36,15 @@ public class SombreroUserGroupRepository {
                 .chain(() -> Uni.createFrom().nullItem()));
     }
 
+    public Uni<Void> removeUserFromGroupByUUID(UUID userId, UUID groupId) {
+        String nativeQuery = "DELETE FROM sombrero_user_groups WHERE user_id = ? AND group_id = ?";
+        return sessionFactory.withTransaction((session, tx) -> session.createNativeQuery(nativeQuery)
+                .setParameter(1, userId)
+                .setParameter(2, groupId)
+                .executeUpdate()
+                .chain(() -> Uni.createFrom().nullItem()));
+    }
+
 
     public Uni<SombreroUserGroup> save(SombreroUserGroup userGroup) {
         return sessionFactory.withTransaction((session, tx) -> session.merge(userGroup).chain(() -> Uni.createFrom().item(userGroup)));

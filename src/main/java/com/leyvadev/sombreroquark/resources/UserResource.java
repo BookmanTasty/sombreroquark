@@ -9,7 +9,6 @@ import com.leyvadev.sombreroquark.utils.Permissions;
 import com.leyvadev.sombreroquark.utils.VerifyPermisionsInGroups;
 import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.Uni;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 
@@ -25,16 +24,13 @@ import java.util.Map;
 @Produces("application/json")
 @Consumes("application/json")
 public class UserResource {
-
+    private static final String EMAIL = "email";
     @Inject
     SombreroUserService sombreroUserService;
     @Inject
     VerifyPermisionsInGroups verifyPermisionsInGroups;
     @Inject
     JsonWebToken jwt;
-    @Inject
-    @ConfigProperty(name = "sombreroquark.admin.group")
-    String adminGroup;
     @POST
     public Uni<Response> createUserWithEmailAndPassword(CreateUserDTO user,@QueryParam("redirect") String redirect) {
         return sombreroUserService.createUserWithEmailAndPassword(user, redirect);
@@ -59,7 +55,7 @@ public class UserResource {
     @Authenticated
     @Path("/me")
     public Uni<Response> getMe(@Context SecurityContext securityContext) {
-        return sombreroUserService.findUserByEmail(jwt.getClaim("email"));
+        return sombreroUserService.findUserByEmail(jwt.getClaim(EMAIL));
     }
 
     @POST
@@ -74,7 +70,7 @@ public class UserResource {
     @POST
     @Authenticated
     @Path("/updatedata/{email}")
-    public Uni<Response> updateUserData(@Context SecurityContext securityContext, Map<String,Object> data, @PathParam("email") String email) {
+    public Uni<Response> updateUserData(@Context SecurityContext securityContext, Map<String,Object> data, @PathParam(EMAIL) String email) {
         String[] groups = jwt.getGroups().toArray(String[]::new);
         String[] permissions = new String[]{Permissions.UPDATE_USER, Permissions.VIEW_USERS};
         return verifyPermisionsInGroups.verifyPermissionsInGroups(groups, permissions)
@@ -85,7 +81,7 @@ public class UserResource {
     @Authenticated
     @Path("/me/changepassword")
     public Uni<Response> changePassword(@Context SecurityContext securityContext, CredentialsDTO credentialsDTO) {
-        credentialsDTO.setEmail(jwt.getClaim("email"));
+        credentialsDTO.setEmail(jwt.getClaim(EMAIL));
         return sombreroUserService.changePassword(credentialsDTO);
     }
 
@@ -93,12 +89,12 @@ public class UserResource {
     @Authenticated
     @Path("/me/updatedata")
     public Uni<Response> updateData(@Context SecurityContext securityContext, Map<String,Object> data) {
-        return sombreroUserService.updateDataUser(data, jwt.getClaim("email"));
+        return sombreroUserService.updateDataUser(data, jwt.getClaim(EMAIL));
     }
 
     @POST
     @Path("/reset/password")
-    public Uni<Response> sendResetPasswordEmail(@QueryParam("email") String email, @QueryParam("redirect") String redirect) {
+    public Uni<Response> sendResetPasswordEmail(@QueryParam(EMAIL) String email, @QueryParam("redirect") String redirect) {
         return sombreroUserService.sendResetPassword(email, redirect);
     }
     @GET
