@@ -52,6 +52,29 @@ public class SystemServiceImpl implements SystemService {
     }
 
     @Override
+    public Uni<Response> updateGroup(GroupDTO groupDTO, String groupId) {
+        return sombreroGroupRepository.findByUUID(groupId)
+                .flatMap(group -> {
+                    if (group == null) {
+                        throw new IllegalArgumentException(GROUP_NOT_FOUND);
+                    }
+                    if (groupDTO.getName() != null && !groupDTO.getName().isEmpty()) {
+                        group.setName(groupDTO.getName());
+                    }
+                    if (groupDTO.getData() != null) {
+                        group.setData(groupDTO.getData());
+                    }
+                    if (groupDTO.getPriority() != null) {
+                        group.setPriority(groupDTO.getPriority());
+                    }
+                    return sombreroGroupRepository.save(group)
+                            .onItem().transform(updated -> Response.ok(updated).build());
+                });
+    }
+
+
+
+    @Override
     public Uni<Response> addGroupPermission(String groupId, String permissionId) {
         if (groupId == null || permissionId == null) {
             throw new IllegalArgumentException("Group or permission id is null");

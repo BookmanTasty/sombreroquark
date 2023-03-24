@@ -58,6 +58,16 @@ public class SystemResource {
         return verifyPermisionsInGroups.verifyPermissionsInGroups(groups, permissions)
                 .chain(() -> systemService.createGroup(groupDTO));
     }
+    @PUT
+    @Authenticated
+    @Path("/groups/{groupId}")
+    public Uni<Response> updateGroup(@Context SecurityContext securityContext, @PathParam("groupId") String groupId, GroupDTO groupDTO) {
+        String[] groups = jwt.getGroups().toArray(String[]::new);
+        String[] permissions = new String[]{Permissions.UPDATE_GROUP};
+
+        return verifyPermisionsInGroups.verifyPermissionsInGroups(groups, permissions)
+                .chain(() -> systemService.updateGroup( groupDTO, groupId));
+    }
 
     @PUT
     @Authenticated

@@ -26,6 +26,15 @@ public class SombreroUserGroupRepository {
                         .getSingleResultOrNull()
         );
     }
+    public Uni<Boolean> findByUserAndGroupExists(UUID userId, UUID groupId) {
+        return sessionFactory.withSession(session -> session
+                .createNativeQuery("SELECT COUNT(*) FROM sombrero_user_groups WHERE user_id = :userId AND group_id = :groupId")
+                .setParameter("userId", userId)
+                .setParameter("groupId", groupId)
+                .getSingleResult()
+                .flatMap(result -> Uni.createFrom().item(((Number) result).intValue() > 0))
+        );
+    }
 
     public Uni<Void> addUserToGroupByUUID(UUID userId, UUID groupId) {
         String nativeQuery = "INSERT INTO sombrero_user_groups (user_id, group_id) VALUES (?, ?)";

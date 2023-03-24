@@ -68,8 +68,8 @@ public class StartupService {
                 LOGGER.info("Default user not found, creating it");
                 user = createDefaultUser().await().indefinitely();
             }
-            SombreroUserGroup userGroup = sombreroUserGroupRepository.findByUserAndGroup(user, group).await().indefinitely();
-            if (userGroup == null) {
+            Boolean userGroup = sombreroUserGroupRepository.findByUserAndGroupExists(user.getId(), group.getId()).await().indefinitely();
+            if (userGroup == null || !userGroup) {
                 LOGGER.info("Default user not found in default group, adding it");
                 createDefaultUserGroup(user, group).await().indefinitely();
             }

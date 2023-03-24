@@ -1,69 +1,29 @@
-# sombreroquark
+# 🎩 SombreroQuark 🎩
+Welcome to the documentation of SombreroQuark! 🎉
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+SombreroQuark is a lightweight API built on Quarkus, designed to help you manage users, roles, permissions, and authorization with ease. It offers robust support for JWT tokens, Google OAuth2 authentication, email verification, and magic link login.
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+## 🔍 Features
+Some of the features of SombreroQuark include:
 
-## Running the application in dev mode
+🔒 Robust User Management: Securely register, manage and authenticate users with SombreroQuark's user management system.
 
-You can run your application in dev mode that enables live coding using:
-```shell script
-./mvnw compile quarkus:dev
-```
+🎫 Role-based Access Control: Create roles and assign permissions to users to control access to various resources.
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+🔑 JWT Token Authentication: Authenticate users and control access to resources through JSON Web Tokens (JWT).
 
-## Packaging and running the application
+🌐 OAuth 2.0 Support: Authenticate users with Google OAuth 2.0 and integrate SombreroQuark with other OAuth 2.0 providers.
 
-The application can be packaged using:
-```shell script
-./mvnw package
-```
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+📧 Email Verification: Verify users' email addresses to ensure that only valid users can access your resources.
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+🔗 Magic Link Authentication: Allow users to log in to their accounts with a single click through secure magic links sent via email.
 
-If you want to build an _über-jar_, execute the following command:
-```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
-```
+💻 Lightweight API: Built on the Quarkus framework, SombreroQuark is lightweight, fast and efficient.
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+If you're looking for a powerful yet lightweight solution for managing users and authentication in your application, SombreroQuark is the perfect choice!
 
-## Creating a native executable
+## 📚 Documentation
 
-You can create a native executable using: 
-```shell script
-./mvnw package -Pnative
-```
+👋 Hello everyone! Just a quick update on the SombreroQuark documentation. We are currently 30% done with documenting all the features of this lightweight Quarkus API. 📝 Stay tuned for more updates as we continue to work hard on making the documentation as comprehensive as possible!
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
-```shell script
-./mvnw package -Pnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/sombreroquark-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
-
-## Related Guides
-
-- RESTEasy Reactive ([guide](https://quarkus.io/guides/resteasy-reactive)): A JAX-RS implementation utilizing build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
-- SmallRye Health ([guide](https://quarkus.io/guides/microprofile-health)): Monitor service health
-- Reactive PostgreSQL client ([guide](https://quarkus.io/guides/reactive-sql-clients)): Connect to the PostgreSQL database using the reactive pattern
-- SmallRye JWT Build ([guide](https://quarkus.io/guides/security-jwt-build)): Create JSON Web Token with SmallRye JWT Build API
-
-## Provided Code
-
-### RESTEasy Reactive
-
-Easily start your Reactive RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
-
-### SmallRye Health
-
-Monitor your application's health using SmallRye Health
-
-[Related guide section...](https://quarkus.io/guides/smallrye-health)
+## Getting Started

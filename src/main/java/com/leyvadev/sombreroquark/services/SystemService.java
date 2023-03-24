@@ -9,6 +9,7 @@ public interface SystemService {
     Uni<Response> getPermissions();
     Uni<Response> getGroups();
     Uni<Response> createGroup(GroupDTO groupDTO);
+    Uni<Response> updateGroup(GroupDTO groupDTO, String groupId);
     Uni<Response> addGroupPermission(String groupId, String permissionId);
     Uni<Response> removeGroupPermission(String groupId, String permissionId);
     Uni<Response> addUserToGroup(String userId, String groupId);
