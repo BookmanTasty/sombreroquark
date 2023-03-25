@@ -2,7 +2,7 @@ version: "3"
 
 services:
   sombreroquark:
-    image: bookmantasty/sombreroquark:lastest
+    image: bookmantasty/sombreroquark:latest
     ports:
       - "8080:8080"
     environment:
