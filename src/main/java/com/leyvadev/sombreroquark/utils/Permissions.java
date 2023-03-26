@@ -36,6 +36,10 @@ public final class Permissions implements Serializable {
     public static final String REMOVE_GROUP_FROM_USER = "remove_group_from_user";
     public static final String VIEW_AUDIT_LOGS = "view_audit_logs";
     public static final String EXPORT_DATA = "export_data";
+    public static final String VIEW_REDIRECT_URLS = "view_redirect_urls";
+    public static final String CREATE_REDIRECT_URL = "create_redirect_url";
+    public static final String UPDATE_REDIRECT_URL = "update_redirect_url";
+    public static final String DEACTIVATE_REDIRECT_URL = "deactivate_redirect_url";
 
     public static List<String> getPermissions() {
         return List.of(
@@ -70,7 +74,11 @@ public final class Permissions implements Serializable {
                 REMOVE_PERMISSION_FROM_GROUP,
                 VIEW_AUDIT_LOGS,
                 EXPORT_DATA,
-                VIEW_PERMISSIONS
+                VIEW_PERMISSIONS,
+                VIEW_REDIRECT_URLS,
+                CREATE_REDIRECT_URL,
+                UPDATE_REDIRECT_URL,
+                DEACTIVATE_REDIRECT_URL
         );
     }
 }

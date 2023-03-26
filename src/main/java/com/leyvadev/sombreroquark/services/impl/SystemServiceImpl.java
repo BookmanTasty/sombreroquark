@@ -1,7 +1,10 @@
 package com.leyvadev.sombreroquark.services.impl;
 
+import com.leyvadev.sombreroquark.dto.AllowedRedirectUrlDto;
 import com.leyvadev.sombreroquark.dto.DefaultResponseDTO;
 import com.leyvadev.sombreroquark.dto.GroupDTO;
+import com.leyvadev.sombreroquark.dto.PaginatedRequestDTO;
+import com.leyvadev.sombreroquark.model.SombreroAllowedRedirectUrl;
 import com.leyvadev.sombreroquark.model.SombreroGroup;
 import com.leyvadev.sombreroquark.repositories.*;
 import com.leyvadev.sombreroquark.services.SystemService;
@@ -15,6 +18,9 @@ import java.util.UUID;
 @ApplicationScoped
 public class SystemServiceImpl implements SystemService {
     private static final String GROUP_NOT_FOUND = "Group not found";
+    private static final String ERROR_UUID = "UUID is not valid";
+    private static final String REDIRECT_URL_NOT_FOUND = "Redirect url not found";
+    private static final String REDIRECT_URL_ID_NULL = "Redirect url id is null or empty";
     @Inject
     SombreroGroupPermissionRepository sombreroGroupPermissionRepository;
     @Inject
@@ -25,6 +31,8 @@ public class SystemServiceImpl implements SystemService {
     SombreroUserGroupRepository sombreroUserGroupRepository;
     @Inject
     SombreroUserRepository sombreroUserRepository;
+    @Inject
+    SombreroAllowedRedirectUrlsRepository sombreroAllowedRedirectUrlsRepository;
     @Override
     public Uni<Response> getPermissions() {
         return sombreroPermissionRepository.findAll().list()
@@ -85,7 +93,7 @@ public class SystemServiceImpl implements SystemService {
             groupUUID = UUID.fromString(groupId);
             permissionUUID = UUID.fromString(permissionId);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Group or permission id is not a valid UUID");
+            throw new IllegalArgumentException(ERROR_UUID);
         }
         UUID finalPermissionUUID = permissionUUID;
         UUID finalGroupUUID = groupUUID;
@@ -116,7 +124,7 @@ public class SystemServiceImpl implements SystemService {
             groupUUID = UUID.fromString(groupId);
             permissionUUID = UUID.fromString(permissionId);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Group or permission id is not a valid UUID");
+            throw new IllegalArgumentException(ERROR_UUID);
         }
         UUID finalPermissionUUID = permissionUUID;
         UUID finalGroupUUID = groupUUID;
@@ -147,7 +155,7 @@ public class SystemServiceImpl implements SystemService {
             userUUID = UUID.fromString(userId);
             groupUUID = UUID.fromString(groupId);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("User or group id is not a valid UUID");
+            throw new IllegalArgumentException(ERROR_UUID);
         }
         UUID finalUserUUID = userUUID;
         UUID finalGroupUUID = groupUUID;
@@ -178,7 +186,7 @@ public class SystemServiceImpl implements SystemService {
             userUUID = UUID.fromString(userId);
             groupUUID = UUID.fromString(groupId);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("User or group id is not a valid UUID");
+            throw new IllegalArgumentException(ERROR_UUID);
         }
         UUID finalUserUUID = userUUID;
         UUID finalGroupUUID = groupUUID;
@@ -195,6 +203,93 @@ public class SystemServiceImpl implements SystemService {
                                 return sombreroUserGroupRepository.removeUserFromGroupByUUID(finalUserUUID, finalGroupUUID)
                                         .onItem().transform(added -> Response.ok(new DefaultResponseDTO("User removed from group","200")).build());
                             });
+                });
+    }
+
+    @Override
+    public Uni<Response> getRedirectUrls(PaginatedRequestDTO paginatedRequestDTO) {
+        return sombreroAllowedRedirectUrlsRepository.getPaginatedUrls(paginatedRequestDTO)
+                .onItem().transform(redirectUrls -> Response.ok(redirectUrls).build());
+    }
+
+    @Override
+    public Uni<Response> createRedirectUrl(AllowedRedirectUrlDto allowedRedirectUrlDto) {
+        if (allowedRedirectUrlDto.getUrl() == null || allowedRedirectUrlDto.getUrl().isEmpty()) {
+            throw new IllegalArgumentException("Url is null or empty");
+        }
+        SombreroAllowedRedirectUrl url = new SombreroAllowedRedirectUrl();
+        url.setUrl(allowedRedirectUrlDto.getUrl());
+        url.setData(allowedRedirectUrlDto.getData());
+        return sombreroAllowedRedirectUrlsRepository.save(url)
+                .onItem().transform(saved -> Response.ok(saved).build());
+    }
+
+    @Override
+    public Uni<Response> updateRedirectUrl(AllowedRedirectUrlDto allowedRedirectUrlDto, String redirectUrlId) {
+        if (allowedRedirectUrlDto.getData() == null || allowedRedirectUrlDto.getData().isEmpty()) {
+            throw new IllegalArgumentException("Data is null or empty");
+        }
+        if (redirectUrlId == null || redirectUrlId.isEmpty()) {
+            throw new IllegalArgumentException(REDIRECT_URL_ID_NULL);
+        }
+        UUID uuid = null;
+        try {
+            uuid = UUID.fromString(redirectUrlId);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(ERROR_UUID);
+        }
+        return sombreroAllowedRedirectUrlsRepository.findByUUID(uuid)
+                .flatMap(url -> {
+                    if (url == null) {
+                        throw new IllegalArgumentException(REDIRECT_URL_NOT_FOUND);
+                    }
+                    url.setData(allowedRedirectUrlDto.getData());
+                    return sombreroAllowedRedirectUrlsRepository.save(url)
+                            .onItem().transform(saved -> Response.ok(new DefaultResponseDTO("Redirect url updated","200")).build());
+                });
+    }
+
+    @Override
+    public Uni<Response> deactivateRedirectUrl(String redirectUrlId) {
+        if (redirectUrlId == null || redirectUrlId.isEmpty()) {
+            throw new IllegalArgumentException(REDIRECT_URL_ID_NULL);
+        }
+        UUID uuid = null;
+        try {
+            uuid = UUID.fromString(redirectUrlId);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(ERROR_UUID);
+        }
+        return sombreroAllowedRedirectUrlsRepository.findByUUID(uuid)
+                .flatMap(url -> {
+                    if (url == null) {
+                        throw new IllegalArgumentException(REDIRECT_URL_NOT_FOUND);
+                    }
+                    url.deactivate();
+                    return sombreroAllowedRedirectUrlsRepository.save(url)
+                            .onItem().transform(saved -> Response.ok(new DefaultResponseDTO("Redirect url deactivated","200")).build());
+                });
+    }
+
+    @Override
+    public Uni<Response> activateRedirectUrl(String redirectUrlId) {
+        if (redirectUrlId == null || redirectUrlId.isEmpty()) {
+            throw new IllegalArgumentException(REDIRECT_URL_ID_NULL);
+        }
+        UUID uuid = null;
+        try {
+            uuid = UUID.fromString(redirectUrlId);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(ERROR_UUID);
+        }
+        return sombreroAllowedRedirectUrlsRepository.findByUUID(uuid)
+                .flatMap(url -> {
+                    if (url == null) {
+                        throw new IllegalArgumentException(REDIRECT_URL_NOT_FOUND);
+                    }
+                    url.activate();
+                    return sombreroAllowedRedirectUrlsRepository.save(url)
+                            .onItem().transform(saved -> Response.ok(new DefaultResponseDTO("Redirect url activated","200")).build());
                 });
     }
 

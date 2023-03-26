@@ -1,10 +1,13 @@
 package com.leyvadev.sombreroquark.resources;
 
+import com.leyvadev.sombreroquark.dto.AllowedRedirectUrlDto;
 import com.leyvadev.sombreroquark.dto.GroupDTO;
+import com.leyvadev.sombreroquark.dto.PaginatedRequestDTO;
 import com.leyvadev.sombreroquark.services.SystemService;
 import com.leyvadev.sombreroquark.utils.Permissions;
 import com.leyvadev.sombreroquark.utils.VerifyPermisionsInGroups;
 import io.quarkus.security.Authenticated;
+import io.quarkus.security.User;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
@@ -113,6 +116,61 @@ public class SystemResource {
                 .chain(() -> systemService.removeUserFromGroup(userId, groupId));
     }
 
+    @POST
+    @Authenticated
+    @Path("/redirect/list")
+    public Uni<Response> getRedirect(@Context SecurityContext securityContext, PaginatedRequestDTO paginatedRequestDTO) {
+        String[] groups = jwt.getGroups().toArray(String[]::new);
+        String[] permissions = new String[]{Permissions.VIEW_REDIRECT_URLS};
+
+        return verifyPermisionsInGroups.verifyPermissionsInGroups(groups, permissions)
+                .chain(() -> systemService.getRedirectUrls(paginatedRequestDTO));
+    }
+
+
+    @POST
+    @Authenticated
+    @Path("/redirect")
+    public Uni<Response> addRedirect(@Context SecurityContext securityContext, AllowedRedirectUrlDto redirect) {
+        String[] groups = jwt.getGroups().toArray(String[]::new);
+        String[] permissions = new String[]{Permissions.CREATE_REDIRECT_URL};
+
+        return verifyPermisionsInGroups.verifyPermissionsInGroups(groups, permissions)
+                .chain(() -> systemService.createRedirectUrl(redirect));
+    }
+
+    @PUT
+    @Authenticated
+    @Path("/redirect/{redirectId}")
+    public Uni<Response> updateRedirect(@Context SecurityContext securityContext, @PathParam("redirectId") String redirectId, AllowedRedirectUrlDto redirect) {
+        String[] groups = jwt.getGroups().toArray(String[]::new);
+        String[] permissions = new String[]{Permissions.UPDATE_REDIRECT_URL};
+
+        return verifyPermisionsInGroups.verifyPermissionsInGroups(groups, permissions)
+                .chain(() -> systemService.updateRedirectUrl( redirect, redirectId));
+    }
+
+    @PUT
+    @Authenticated
+    @Path("/redirect/{redirectId}/activate")
+    public Uni<Response> activateRedirect(@Context SecurityContext securityContext, @PathParam("redirectId") String redirectId) {
+        String[] groups = jwt.getGroups().toArray(String[]::new);
+        String[] permissions = new String[]{Permissions.UPDATE_REDIRECT_URL};
+
+        return verifyPermisionsInGroups.verifyPermissionsInGroups(groups, permissions)
+                .chain(() -> systemService.activateRedirectUrl(redirectId));
+    }
+
+    @PUT
+    @Authenticated
+    @Path("/redirect/{redirectId}/deactivate")
+    public Uni<Response> deactivateRedirect(@Context SecurityContext securityContext, @PathParam("redirectId") String redirectId) {
+        String[] groups = jwt.getGroups().toArray(String[]::new);
+        String[] permissions = new String[]{Permissions.UPDATE_REDIRECT_URL};
+
+        return verifyPermisionsInGroups.verifyPermissionsInGroups(groups, permissions)
+                .chain(() -> systemService.deactivateRedirectUrl(redirectId));
+    }
 
 
 

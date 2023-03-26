@@ -58,4 +58,12 @@ public class SombreroAllowedRedirectUrl {
     public void setData(String data) {
         this.data = data;
     }
+
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
 }
