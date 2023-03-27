@@ -171,7 +171,7 @@ public class SombreroUserServiceImpl implements SombreroUserService {
                     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                         throw new IllegalArgumentException(PASSWORD_IS_NOT_VALID);
                     }
-                    return sombreroUserRepository.save(user).map(persistedUser -> Response.ok(persistedUser).build());
+                    return sombreroUserRepository.save(user).map(persistedUser -> Response.ok(new DefaultResponseDTO("Reset password successfully","200")).build());
                 });
     }
 

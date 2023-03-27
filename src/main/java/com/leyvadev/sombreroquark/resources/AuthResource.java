@@ -162,13 +162,66 @@ public class AuthResource {
 
     @GET
     @Path("/login/magic")
+    @Tag(name = "auth")
+    @APIResponse(
+            responseCode = "302",
+            description = "Redirect to redirect URL"
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Invalid token",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            type = SchemaType.OBJECT,
+                            implementation = Response.class,
+                            example = "{\n  \"error\": \"Invalid token\",\n  \"code\": \"400\"\n}"
+                    )
+            )
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Invalid redirect URL",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            type = SchemaType.OBJECT,
+                            example = "{\"error\":\"Invalid redirect URL\",\"code\":\"400\"}"
+                    )
+            )
+    )
     public Uni<Response> verifyMagicLink(@QueryParam("token") String token, @QueryParam("redirect") String redirect) {
         return authService.verifyMagicLink(token, redirect);
     }
 
     @POST
     @Path("/logout")
-    public Uni<Response> logout(@Context HttpHeaders headers) {
+    @Tag(name = "auth")
+    @APIResponse(
+            responseCode = "200",
+            description = "Logout successful",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            type = SchemaType.OBJECT,
+                            implementation = Response.class,
+                            example = "{\"message\":\"Logged out\",\"code\":\"200\"}"
+                    )
+            )
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Invalid token",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            type = SchemaType.OBJECT,
+                            implementation = Response.class,
+                            example = "{\n  \"error\": \"Invalid token\",\n  \"code\": \"400\"\n}"
+                    )
+            )
+    )
+    public Uni<Response> logout(@Context HttpHeaders headers, @CookieParam("refreshToken") String refreshToken) {
         return authService.logout(headers);
     }
 

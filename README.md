@@ -123,6 +123,14 @@ Once the containers are up and running, you can access SombreroQuark at http://l
 - **ADMIN_PASSWORD**: the password for the default admin user.
 - **ADMIN_EMAIL**: the email address for the default admin user.
 
+# SombreroQuark API Documentation
+
+Please refer to the official SombreroQuark API documentation for more information:
+
+- [SombreroQuark API Documentation](https://app.swaggerhub.com/apis-docs/CLEYVALUNA/sombreroquark-api/1.0.0-SNAPSHOT#/)
+
+The documentation includes information on available endpoints, request and response schemas, authentication mechanisms, and more. If you have any questions or issues with the API, please refer to the documentation first or contact the API team for assistance.
+
 ## SombreroQuark To-Do List 📋
 Here are some of the planned and desired features for SombreroQuark! 🚀
 

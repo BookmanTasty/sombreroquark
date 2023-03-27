@@ -1,0 +1,1339 @@
+---
+openapi: 3.0.3
+info:
+  title: sombreroquark API
+  version: 1.0.0-SNAPSHOT
+tags:
+- name: OAuth
+- name: System
+- name: Users
+- name: auth
+  description: Authentication operations
+paths:
+  /api/auth/login:
+    post:
+      tags:
+      - auth
+      requestBody:
+        description: User credentials
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                newPassword:
+                  type: string
+              example:
+                email: john.doe@example.com
+                password: mysecretpassword
+        required: true
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                accessToken: token
+                tokenType: Access token
+        "400":
+          description: Invalid user or password
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                error: Invalid user or password
+                code: "400"
+  /api/auth/login/magic:
+    get:
+      tags:
+      - auth
+      parameters:
+      - name: redirect
+        in: query
+        schema:
+          type: string
+      - name: token
+        in: query
+        schema:
+          type: string
+      responses:
+        "302":
+          description: Redirect to redirect URL
+        "400":
+          description: Invalid redirect URL
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Invalid redirect URL
+                  code: "400"
+    post:
+      tags:
+      - auth
+      parameters:
+      - name: redirect
+        in: query
+        description: Redirect URL after login
+        schema:
+          type: string
+        example: https://example.com/dashboard
+      requestBody:
+        description: Credentials for magic link login
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                newPassword:
+                  type: string
+              example:
+                email: johndoe@example.com
+        required: true
+      responses:
+        "200":
+          description: Magic link sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Email sent
+                  code: "200"
+        "400":
+          description: Invalid email or redirect URL
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Invalid email or redirect URL
+                  code: "400"
+  /api/auth/logout:
+    post:
+      tags:
+      - auth
+      parameters:
+      - name: refreshToken
+        in: cookie
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Logged out
+                  code: "200"
+        "400":
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Invalid token
+                  code: "400"
+  /api/auth/token/renew:
+    post:
+      tags:
+      - auth
+      parameters:
+      - name: refreshToken
+        in: cookie
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Token renewed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  accessToken: token
+                  tokenType: Access token
+        "400":
+          description: Invalid user or password
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Invalid token
+                  code: "400"
+  /api/system/groups:
+    get:
+      tags:
+      - System
+      responses:
+        "200":
+          description: Groups
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                - id: 93e409f1-a8ba-41f3-a57e-743a5b3e0e45
+                  name: SombreroAdmin
+                  data: SombreroAdmin default group
+                  priority: 0
+                  permissions:
+                  - assign_role_to_user
+                  - delete_role
+                  - update_permission
+                  - create_group
+                  - remove_group_from_user
+                  - view_redirect_urls
+                  - deactivate_redirect_url
+                  - create_role
+                  - assign_group_to_user
+                  - reset_password
+                  - create_redirect_url
+                  - update_redirect_url
+                  - remove_user_from_group
+                  - change_password
+                  - view_audit_logs
+                  - update_user
+                  - update_group
+                  - read_group
+                  - create_permission
+                  - export_data
+                  - view_groups
+                  - assign_user_to_group
+                  - read_user
+                  - read_permission
+                  - delete_group
+                  - read_role
+                  - remove_permission_from_group
+                  - view_permissions
+                  - assign_permission_to_group
+                  - delete_permission
+                  - delete_user
+                  - view_roles
+                  - view_users
+                  - update_role
+                  - create_user
+                  - remove_role_from_user
+        "401":
+          description: Unauthorized
+        "400":
+          description: Missing permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Missing permissions
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+    post:
+      tags:
+      - System
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupDTO'
+      responses:
+        "200":
+          description: Group created
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  id: 93e409f1-a8ba-41f3-a57e-743a5b3e0e45
+                  name: SombreroAdmin
+                  data: SombreroAdmin default group
+                  priority: 0
+                  permissions:
+                  - assign_role_to_user
+                  - delete_role
+                  - update_permission
+                  - create_group
+                  - remove_group_from_user
+                  - view_redirect_urls
+                  - deactivate_redirect_url
+                  - create_role
+                  - assign_group_to_user
+                  - reset_password
+                  - create_redirect_url
+                  - update_redirect_url
+                  - remove_user_from_group
+                  - change_password
+                  - view_audit_logs
+                  - update_user
+                  - update_group
+                  - read_group
+                  - create_permission
+                  - export_data
+                  - view_groups
+                  - assign_user_to_group
+                  - read_user
+                  - read_permission
+                  - delete_group
+                  - read_role
+                  - remove_permission_from_group
+                  - view_permissions
+                  - assign_permission_to_group
+                  - delete_permission
+                  - delete_user
+                  - view_roles
+                  - view_users
+                  - update_role
+                  - create_user
+                  - remove_role_from_user
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid priority
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Group priority is too low
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/system/groups/{groupId}:
+    put:
+      tags:
+      - System
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupDTO'
+      responses:
+        "200":
+          description: Group updated
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  id: 93e409f1-a8ba-41f3-a57e-743a5b3e0e45
+                  name: SombreroAdmin
+                  data: SombreroAdmin default group
+                  priority: 0
+                  permissions:
+                  - assign_role_to_user
+                  - delete_role
+                  - update_permission
+                  - create_group
+                  - remove_group_from_user
+                  - view_redirect_urls
+                  - deactivate_redirect_url
+                  - create_role
+                  - assign_group_to_user
+                  - reset_password
+                  - create_redirect_url
+                  - update_redirect_url
+                  - remove_user_from_group
+                  - change_password
+                  - view_audit_logs
+                  - update_user
+                  - update_group
+                  - read_group
+                  - create_permission
+                  - export_data
+                  - view_groups
+                  - assign_user_to_group
+                  - read_user
+                  - read_permission
+                  - delete_group
+                  - read_role
+                  - remove_permission_from_group
+                  - view_permissions
+                  - assign_permission_to_group
+                  - delete_permission
+                  - delete_user
+                  - view_roles
+                  - view_users
+                  - update_role
+                  - create_user
+                  - remove_role_from_user
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid priority
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Group priority is too low
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/system/groups/{groupId}/permissions/{permissionId}:
+    put:
+      tags:
+      - System
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: permissionId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Permission added to group
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Permission added to group
+                  code: 200
+        "401":
+          description: Unauthorized
+        "400":
+          description: UUID is not valid
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: UUID is not valid
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+    delete:
+      tags:
+      - System
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: permissionId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Permission removed from group
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Permission removed from group
+                  code: 200
+        "401":
+          description: Unauthorized
+        "400":
+          description: UUID is not valid
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: UUID is not valid
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/system/permissions:
+    get:
+      tags:
+      - System
+      responses:
+        "200":
+          description: Permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  permissions:
+                  - view_permissions
+                  - view_groups
+                  - create_group
+                  - update_group
+                  - delete_group
+                  - view_users
+                  - create_user
+                  - update_user
+                  - delete_user
+                  - view_allowed_redirect_urls
+                  - create_allowed_redirect_url
+                  - update_allowed_redirect_url
+                  - delete_allowed_redirect_url
+        "401":
+          description: Unauthorized
+        "400":
+          description: Missing permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Missing permissions
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/system/redirect:
+    post:
+      tags:
+      - System
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllowedRedirectUrlDto'
+      responses:
+        "200":
+          description: Redirect url created
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Redirect url created
+                  code: 200
+        "401":
+          description: Unauthorized
+        "400":
+          description: Missing permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Missing permissions
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/system/redirect/list:
+    post:
+      tags:
+      - System
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaginatedRequestDTO'
+      responses:
+        "200":
+          description: List of redirect urls
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  urls:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SombreroAllowedRedirectUrl'
+                  currentPage:
+                    format: int32
+                    type: integer
+                  pageSize:
+                    format: int32
+                    type: integer
+                  totalItems:
+                    format: int64
+                    type: integer
+                example:
+                  data:
+                  - id: string
+                    url: string
+                  total: 0
+        "401":
+          description: Unauthorized
+        "400":
+          description: Missing permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Missing permissions
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/system/redirect/{redirectId}:
+    put:
+      tags:
+      - System
+      parameters:
+      - name: redirectId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllowedRedirectUrlDto'
+      responses:
+        "200":
+          description: Redirect url updated
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Redirect url updated
+                  code: 200
+        "401":
+          description: Unauthorized
+        "400":
+          description: UUID is not valid
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: UUID is not valid
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/system/redirect/{redirectId}/activate:
+    put:
+      tags:
+      - System
+      parameters:
+      - name: redirectId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Redirect url activated
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Redirect url activated
+                  code: 200
+        "401":
+          description: Unauthorized
+        "400":
+          description: UUID is not valid
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: UUID is not valid
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/system/redirect/{redirectId}/deactivate:
+    put:
+      tags:
+      - System
+      parameters:
+      - name: redirectId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Redirect url deactivated
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Redirect url deactivated
+                  code: 200
+        "401":
+          description: Unauthorized
+        "400":
+          description: UUID is not valid
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: UUID is not valid
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/system/users/{userId}/groups/{groupId}:
+    post:
+      tags:
+      - System
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: User added to group
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: User added to group
+                  code: 200
+        "401":
+          description: Unauthorized
+        "400":
+          description: UUID is not valid
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: UUID is not valid
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+    delete:
+      tags:
+      - System
+      parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: User removed from group
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: User removed from group
+                  code: 200
+        "401":
+          description: Unauthorized
+        "400":
+          description: UUID is not valid
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: UUID is not valid
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/users:
+    post:
+      tags:
+      - Users
+      parameters:
+      - name: redirect
+        in: query
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDTO'
+      responses:
+        "200":
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: 7883e4aa-1978-46f0-9712-c468cc7dd87c
+                username: jhon
+                email: doe@smail.com
+                createdAt: 2023-03-26T22:55:36.900710700Z
+                active: true
+                emailVerified: false
+                data:
+                  note: here you can enter extra data for user registration
+                  name: jhon
+                groups: []
+        "400":
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                error: User already exists
+                code: 400
+  /api/users/findUserByEmail:
+    post:
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CredentialsDTO'
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: 7883e4aa-1978-46f0-9712-c468cc7dd87c
+                username: jhon
+                email: doe@smail.com
+                createdAt: 2023-03-26T22:55:36.900710700Z
+                active: true
+                emailVerified: false
+                data:
+                  note: here you can enter extra data for user registration
+                  name: jhon
+                groups: []
+        "401":
+          description: Unauthorized
+        "400":
+          description: Missing permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Missing permissions
+                  code: 400
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: User not found
+                  code: 404
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/users/getPaginatedUsers:
+    post:
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaginatedRequestDTO'
+      responses:
+        "200":
+          description: Paginated users
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                users:
+                - id: 7883e4aa-1978-46f0-9712-c468cc7dd87c
+                  username: jhon
+                  email: doe@smail.com
+                  createdAt: 2023-03-26T22:55:36.900710Z
+                  active: true
+                  emailVerified: false
+                  data:
+                    name: jhon
+                    note: here you can enter extra data for user registration
+                  groups: []
+                currentPage: 1
+                pageSize: 10
+                totalItems: 3
+        "401":
+          description: Unauthorized
+        "400":
+          description: Missing permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Missing permissions
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/users/me:
+    post:
+      tags:
+      - Users
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: 7883e4aa-1978-46f0-9712-c468cc7dd87c
+                username: jhon
+                email: doe@smail.com
+                createdAt: 2023-03-26T22:55:36.900710700Z
+                active: true
+                emailVerified: false
+                data:
+                  note: here you can enter extra data for user registration
+                  name: jhon
+                groups: []
+        "401":
+          description: Unauthorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/users/me/changepassword:
+    post:
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CredentialsDTO'
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: 7883e4aa-1978-46f0-9712-c468cc7dd87c
+                username: jhon
+                email: doe@smail.com
+                createdAt: 2023-03-26T22:55:36.900710700Z
+                active: true
+                emailVerified: false
+                data:
+                  note: here you can enter extra data for user registration
+                  name: jhon
+                groups: []
+        "401":
+          description: Unauthorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/users/me/updatedata:
+    post:
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: object
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: 7883e4aa-1978-46f0-9712-c468cc7dd87c
+                username: jhon
+                email: doe@smail.com
+                createdAt: 2023-03-26T22:55:36.900710700Z
+                active: true
+                emailVerified: false
+                data:
+                  note: here you can enter extra data for user registration
+                  name: jhon
+                groups: []
+        "401":
+          description: Unauthorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/users/reset/password:
+    get:
+      tags:
+      - Users
+      parameters:
+      - name: redirect
+        in: query
+        schema:
+          type: string
+      - name: token
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Email sent
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                message: Email sent
+                code: 200
+        "400":
+          description: Token already used
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Token already used
+                  code: 400
+    put:
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CredentialsDTO'
+      responses:
+        "200":
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                message: Reset password successfully
+                code: 200
+        "400":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: User not found
+                  code: 400
+    post:
+      tags:
+      - Users
+      parameters:
+      - name: email
+        in: query
+        schema:
+          type: string
+      - name: redirect
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Email sent
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                message: Email sent
+                code: 200
+        "400":
+          description: Redirect url not allowed
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Redirect url not allowed
+                  code: 400
+  /api/users/updatedata/{email}:
+    post:
+      tags:
+      - Users
+      parameters:
+      - name: email
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: object
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: 7883e4aa-1978-46f0-9712-c468cc7dd87c
+                username: jhon
+                email: doe@smail.com
+                createdAt: 2023-03-26T22:55:36.900710700Z
+                active: true
+                emailVerified: false
+                data:
+                  note: here you can enter extra data for user registration
+                  name: jhon
+                groups: []
+        "401":
+          description: Unauthorized
+        "400":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: User not found
+                  code: 400
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme: []
+  /api/users/verify/email:
+    get:
+      tags:
+      - Users
+      parameters:
+      - name: redirect
+        in: query
+        schema:
+          type: string
+      - name: token
+        in: query
+        schema:
+          type: string
+      responses:
+        "302":
+          description: Redirect to url
+        "400":
+          description: Redirect url not valid
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                error: Redirect url not valid
+                code: 400
+  /oauth/v1/authorize:
+    get:
+      tags:
+      - OAuth
+      parameters:
+      - name: provider
+        in: query
+        schema:
+          type: string
+      - name: redirect
+        in: query
+        schema:
+          type: string
+      responses:
+        "302":
+          description: Redirect to oauth provider
+        "400":
+          description: Invalid redirect URL
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Invalid redirect URL
+                  code: "400"
+  /oauth/v1/callback:
+    get:
+      tags:
+      - OAuth
+      parameters:
+      - name: code
+        in: query
+        schema:
+          type: string
+      - name: state
+        in: query
+        schema:
+          type: string
+      responses:
+        "302":
+          description: Redirect to redirect URL
+        "400":
+          description: Invalid state
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: Invalid state
+                  code: "400"
+  /oauth/v1/certs:
+    get:
+      tags:
+      - OAuth
+      responses:
+        "200":
+          description: Return certs
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  keys:
+                  - kty: RSA
+                    alg: RS256
+                    use: sig
+                    kid: ""
+                    "n": ""
+                    e: ""
+components:
+  schemas:
+    AllowedRedirectUrlDto:
+      type: object
+      properties:
+        url:
+          type: string
+        data:
+          type: string
+    CreateUserDTO:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        data:
+          type: object
+          additionalProperties:
+            type: object
+        emailVerified:
+          type: boolean
+    CredentialsDTO:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        newPassword:
+          type: string
+    GroupDTO:
+      type: object
+      properties:
+        name:
+          type: string
+        data:
+          type: string
+        priority:
+          format: int32
+          type: integer
+    Instant:
+      format: date-time
+      type: string
+      example: 2022-03-10T16:15:50Z
+    PaginatedRequestDTO:
+      type: object
+      properties:
+        page:
+          format: int32
+          type: integer
+        pageSize:
+          format: int32
+          type: integer
+    SombreroAllowedRedirectUrl:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        url:
+          type: string
+        isActive:
+          type: boolean
+        createdAt:
+          $ref: '#/components/schemas/Instant'
+        data:
+          type: string
+        active:
+          type: boolean
+    UUID:
+      format: uuid
+      pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+      type: string
+  securitySchemes:
+    SecurityScheme:
+      type: http
+      description: Authentication
+      scheme: bearer
+      bearerFormat: JWT

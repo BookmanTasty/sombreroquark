@@ -1,6 +1,5 @@
 package com.leyvadev.sombreroquark.utils;
 
-import com.leyvadev.sombreroquark.model.SombreroGroup;
 import com.leyvadev.sombreroquark.repositories.SombreroGroupPermissionRepository;
 import com.leyvadev.sombreroquark.repositories.SombreroGroupRepository;
 import io.smallrye.mutiny.Uni;
@@ -11,6 +10,7 @@ import java.util.List;
 
 @ApplicationScoped
 public class VerifyPermisionsInGroups {
+    private static final String GROUP_PRIORITY_TOO_LOW = "Group priority is too low";
     @Inject
     SombreroGroupPermissionRepository sombreroGroupPermissionRepository;
     @Inject
@@ -39,12 +39,49 @@ public class VerifyPermisionsInGroups {
                     return sombreroGroupRepository.getSmallestPriorityByGroupNames(groupsList)
                             .onItem().transformToUni(smallestPriority -> {
                                 if (smallestPriority > group.getPriority()) {
-                                    throw new IllegalArgumentException("Group priority is too low");
+                                    throw new IllegalArgumentException(GROUP_PRIORITY_TOO_LOW);
                                 }
                                 return verifyPermissionsInGroups(groups, permissions);
                             });
                 });
 
+    }
+
+    public Uni<List<String>> verifyPermissionsInGroupsAndPriority(String[] groups, String[] permissions, Integer priority) {
+        List<String> groupsList = List.of(groups);
+        return sombreroGroupRepository.getSmallestPriorityByGroupNames(groupsList)
+                .onItem().transformToUni(smallestPriority -> {
+                    if (priority == null) {
+                        return verifyPermissionsInGroups(groups, permissions);
+                    }
+                    if (smallestPriority > priority) {
+                        throw new IllegalArgumentException(GROUP_PRIORITY_TOO_LOW);
+                    }
+                    return verifyPermissionsInGroups(groups, permissions);
+                });
+    }
+
+    public Uni<List<String>> verifyPermissionsInGroupsAndPriority(String[] groups, String[] permissions, Integer priority, String groupUUID){
+        List<String> groupsList = List.of(groups);
+        return sombreroGroupRepository.findByUUID(groupUUID)
+                .onItem().transformToUni(group -> {
+                    if (group == null) {
+                        throw new IllegalArgumentException("Group not found");
+                    }
+                    return sombreroGroupRepository.getSmallestPriorityByGroupNames(groupsList)
+                            .onItem().transformToUni(smallestPriority -> {
+                                if (smallestPriority > group.getPriority()) {
+                                    throw new IllegalArgumentException(GROUP_PRIORITY_TOO_LOW);
+                                }
+                                if (priority == null) {
+                                    return verifyPermissionsInGroups(groups, permissions);
+                                }
+                                if (smallestPriority > priority) {
+                                    throw new IllegalArgumentException(GROUP_PRIORITY_TOO_LOW);
+                                }
+                                return verifyPermissionsInGroups(groups, permissions);
+                            });
+                });
     }
 
 
